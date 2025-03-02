@@ -1,7 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 
-# Müşteri Modeli
+
 class Musteri(models.Model):
     ad = models.CharField(max_length=255)
     telefon = models.CharField(max_length=20)
@@ -10,7 +10,7 @@ class Musteri(models.Model):
     def __str__(self):
         return self.ad
 
-# Araç/Ürün Modeli
+
 class Arac(models.Model):
     musteri = models.ForeignKey(Musteri, on_delete=models.CASCADE)
     marka = models.CharField(max_length=100)
@@ -21,7 +21,7 @@ class Arac(models.Model):
     def __str__(self):
         return f"{self.marka} {self.model} ({self.plaka})"
 
-# İş Emri Modeli
+
 class IsEmri(models.Model):
     DURUM_SECENEKLERI = [
         ('beklemede', 'Beklemede'),

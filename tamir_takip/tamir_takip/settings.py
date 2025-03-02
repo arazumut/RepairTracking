@@ -40,7 +40,7 @@ ROOT_URLCONF = 'tamir_takip.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],  # Buraya genel template dizinini eklemeniz gerekebilir
+        'DIRS': [],  
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
