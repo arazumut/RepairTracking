@@ -1,0 +1,13 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Müşteri Sil{% endblock %}
+
+{% block content %}
+<h2>Müşteri Silme</h2>
+<p><strong>{{ musteri.ad }}</strong> isimli müşteriyi silmek istediğinizden emin misiniz?</p>
+<form method="POST">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-danger">Sil</button>
+    <a href="{% url 'musteri_list' %}" class="btn btn-secondary">Vazgeç</a>
+</form>
+{% endblock %}

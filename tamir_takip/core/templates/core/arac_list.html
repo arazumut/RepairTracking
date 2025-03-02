@@ -1,0 +1,27 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Araçlar{% endblock %}
+
+{% block content %}
+<h2>Araç Listesi</h2>
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Plaka</th>
+            <th>Marka</th>
+            <th>Model</th>
+            <th>Üretim Yılı</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for arac in araclar %}
+        <tr>
+            <td>{{ arac.plaka }}</td>
+            <td>{{ arac.marka }}</td>
+            <td>{{ arac.model }}</td>
+            <td>{{ arac.uretim_yili }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

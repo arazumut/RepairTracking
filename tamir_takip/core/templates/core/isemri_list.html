@@ -1,0 +1,29 @@
+{% extends 'core/base.html' %}
+
+{% block title %}İş Emirleri{% endblock %}
+
+{% block content %}
+<h2>İş Emirleri</h2>
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Açıklama</th>
+            <th>Durum</th>
+            <th>Teknisyen</th>
+            <th>Başlangıç</th>
+            <th>Bitiş</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for isemri in is_emirleri %}
+        <tr>
+            <td>{{ isemri.aciklama }}</td>
+            <td>{{ isemri.get_durum_display }}</td>
+            <td>{{ isemri.teknisyen.username }}</td>
+            <td>{{ isemri.baslama_tarihi }}</td>
+            <td>{{ isemri.bitis_tarihi }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
