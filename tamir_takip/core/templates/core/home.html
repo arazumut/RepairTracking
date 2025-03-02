@@ -1,10 +1,49 @@
 {% extends 'core/base.html' %}
 
-{% block title %}Ana Sayfa{% endblock %}
+{% block title %}Ana Sayfa - Tamir Takip Sistemi{% endblock %}
 
 {% block content %}
-<div class="text-center">
-    <h1>Hoş Geldiniz!</h1>
-    <p>Tamir takip sistemine hoş geldiniz. Aşağıdaki menüleri kullanarak işlemlerinizi gerçekleştirebilirsiniz.</p>
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card bg-info text-white shadow-lg">
+                <div class="card-body">
+                    <h3>{{ musteri_sayisi }}</h3>
+                    <p>Müşteriler</p>
+                </div>
+                <div class="card-footer text-right">
+                    <a href="{% url 'musteri_list' %}" class="btn btn-light">
+                        <i class="fas fa-arrow-right"></i> Detaylar
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card bg-success text-white shadow-lg">
+                <div class="card-body">
+                    <h3>{{ arac_sayisi }}</h3>
+                    <p>Araçlar</p>
+                </div>
+                <div class="card-footer text-right">
+                    <a href="{% url 'arac_list' %}" class="btn btn-light">
+                        <i class="fas fa-arrow-right"></i> Detaylar
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card bg-warning text-white shadow-lg">
+                <div class="card-body">
+                    <h3>{{ isemri_sayisi }}</h3>
+                    <p>İş Emirleri</p>
+                </div>
+                <div class="card-footer text-right">
+                    <a href="{% url 'isemri_list' %}" class="btn btn-light">
+                        <i class="fas fa-arrow-right"></i> Detaylar
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 {% endblock %}

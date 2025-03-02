@@ -1,3 +1,19 @@
+#Author: K. Umut Araz
+#Date: 02.03.2025
+
+#tamir_takip/core/views.py
+#Modelleri tanımla
+#login istensin
+#müşteri listesi
+#araç listesi
+#iş emri listesi
+#müşteri ekle
+#müşteri güncelle
+#müşteri sil
+#kullanıcı kayıt
+#api viewsetler
+
+
 from django.shortcuts import render
 from .models import Musteri
 from django.shortcuts import render, redirect
@@ -8,6 +24,9 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login
+from rest_framework import viewsets
+from .models import Musteri, Arac, IsEmri
+from .serializers import MusteriSerializer, AracSerializer, IsEmriSerializer
 
 @login_required
 def home(request):
@@ -62,8 +81,6 @@ def musteri_sil(request, pk):
 
 
 
-
-
 def register(request):
     if request.method == 'POST':
         form = UserCreationForm(request.POST)
@@ -74,6 +91,22 @@ def register(request):
     else:
         form = UserCreationForm()
     return render(request, 'core/register.html', {'form': form})
+
+
+
+
+class MusteriViewSet(viewsets.ModelViewSet):
+    queryset = Musteri.objects.all()
+    serializer_class = MusteriSerializer
+
+class AracViewSet(viewsets.ModelViewSet):
+    queryset = Arac.objects.all()
+    serializer_class = AracSerializer
+
+class IsEmriViewSet(viewsets.ModelViewSet):
+    queryset = IsEmri.objects.all()
+    serializer_class = IsEmriSerializer
+
 
 
 

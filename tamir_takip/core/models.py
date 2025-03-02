@@ -1,6 +1,15 @@
 from django.db import models
 from django.contrib.auth.models import User
+#Author: K. Umut Araz
+#Date: 02.03.2025
 
+#nesne tabanlı başla, veritabanı tabloları oluşturulacak
+#Musteri, Arac, IsEmri
+#Musteri: ad, telefon, adres
+#Arac: musteri, marka, model, plaka, uretim_yili
+#IsEmri: arac, aciklama, durum, teknisyen, baslama_tarihi, bitis_tarihi
+
+#Musteri modeli
 
 class Musteri(models.Model):
     ad = models.CharField(max_length=255)
