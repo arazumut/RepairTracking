@@ -49,15 +49,44 @@ def isemri_list(request):
     return render(request, 'core/isemri_list.html', {'is_emirleri': is_emirleri})
 
 
+from .forms import MusteriForm, AracForm
+
+from django.shortcuts import render, redirect
+from .forms import MusteriForm
+from .models import Musteri, Arac, IsEmri
+
+
+
 def musteri_ekle(request):
     if request.method == "POST":
         form = MusteriForm(request.POST)
         if form.is_valid():
-            form.save()
+            # 1️⃣ Müşteriyi Kaydet
+            musteri = form.save()
+
+            # 2️⃣ Araç Bilgilerini Kaydet
+            arac = Arac.objects.create(
+                musteri=musteri,
+                marka=form.cleaned_data['marka'],
+                model=form.cleaned_data['model'],
+                plaka=form.cleaned_data['plaka'],
+                uretim_yili=form.cleaned_data['uretim_yili']
+            )
+
+            
+            IsEmri.objects.create(
+                arac=arac,
+                aciklama=form.cleaned_data['sorun_aciklama'],
+                durum="beklemede"
+            )
+
             return redirect('musteri_list')
     else:
         form = MusteriForm()
+
     return render(request, 'core/musteri_form.html', {'form': form})
+
+
 
 
 def musteri_guncelle(request, pk):

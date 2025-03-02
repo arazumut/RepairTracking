@@ -1,34 +1,32 @@
 from django.db import models
 from django.contrib.auth.models import User
-#Author: K. Umut Araz
-#Date: 02.03.2025
 
-#nesne tabanlı başla, veritabanı tabloları oluşturulacak
-#Musteri, Arac, IsEmri
-#Musteri: ad, telefon, adres
-#Arac: musteri, marka, model, plaka, uretim_yili
-#IsEmri: arac, aciklama, durum, teknisyen, baslama_tarihi, bitis_tarihi
+# Author: K. Umut Araz
+# Date: 02.03.2025
 
-#Musteri modeli
 
 class Musteri(models.Model):
     ad = models.CharField(max_length=255)
     telefon = models.CharField(max_length=20)
     adres = models.TextField()
+    email = models.EmailField(unique=True, blank=True, null=True)  
 
     def __str__(self):
-        return self.ad
+        return f"{self.ad} - {self.telefon}"
+
 
 
 class Arac(models.Model):
     musteri = models.ForeignKey(Musteri, on_delete=models.CASCADE)
     marka = models.CharField(max_length=100)
     model = models.CharField(max_length=100)
-    plaka = models.CharField(max_length=20, unique=True)
+    plaka = models.CharField(max_length=20, unique=True)  
     uretim_yili = models.IntegerField()
+    uretim_yili = models.IntegerField(default=2000)
 
     def __str__(self):
-        return f"{self.marka} {self.model} ({self.plaka})"
+        return f"{self.marka} {self.model} ({self.plaka}) - {self.musteri.ad}"
+
 
 
 class IsEmri(models.Model):
@@ -47,4 +45,11 @@ class IsEmri(models.Model):
     bitis_tarihi = models.DateTimeField(null=True, blank=True)
 
     def __str__(self):
-        return f"İş Emri: {self.arac} - {self.durum}"
+        return f"{self.arac} - {self.durum}"
+
+    def save(self, *args, **kwargs):
+        
+        if self.durum == 'tamamlandi' and not self.bitis_tarihi:
+            from django.utils.timezone import now
+            self.bitis_tarihi = now()
+        super().save(*args, **kwargs)
