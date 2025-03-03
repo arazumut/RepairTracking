@@ -5,14 +5,18 @@ from django.contrib.auth.models import User
 # Date: 02.03.2025
 
 
+from django.contrib.auth.models import User
+
 class Musteri(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True, default=None)
     ad = models.CharField(max_length=255)
     telefon = models.CharField(max_length=20)
     adres = models.TextField()
-    email = models.EmailField(unique=True, blank=True, null=True)  
+    email = models.EmailField(unique=True, blank=True, null=True)
 
     def __str__(self):
         return f"{self.ad} - {self.telefon}"
+
 
 
 
@@ -26,6 +30,7 @@ class Arac(models.Model):
 
     def __str__(self):
         return f"{self.marka} {self.model} ({self.plaka}) - {self.musteri.ad}"
+    
 
 
 

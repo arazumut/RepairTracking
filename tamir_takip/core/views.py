@@ -28,10 +28,23 @@ from rest_framework import viewsets
 from .models import Musteri, Arac, IsEmri
 from .serializers import MusteriSerializer, AracSerializer, IsEmriSerializer
 from django.db.models import Q 
+from django.shortcuts import get_object_or_404
+
 
 @login_required
 def home(request):
     return render(request, 'core/home.html')
+
+
+@login_required
+def musteri_portal(request):
+    musteriler = Musteri.objects.filter(user=request.user)
+    return render(request, 'core/musteri_portal.html', {'musteriler': musteriler})
+
+@login_required
+def tamir_durum(request, pk):
+    is_emri = get_object_or_404(IsEmri, pk=pk)
+    return render(request, 'core/tamir_durum.html', {'is_emri': is_emri})
 
 
 

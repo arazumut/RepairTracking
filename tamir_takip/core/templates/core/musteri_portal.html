@@ -1,0 +1,16 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Müşteri Portalı{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="text-primary">Müşteri Portalı</h2>
+    <div class="list-group">
+        {% for musteri in musteriler %}
+            <a href="{% url 'tamir_durum' musteri.id %}" class="list-group-item list-group-item-action">
+                {{ musteri.ad }} - {{ musteri.telefon }}
+            </a>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
