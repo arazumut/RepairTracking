@@ -21,4 +21,4 @@ Projenin çalıştırılabilmesi için aşağıdaki adımları izleyin:
 
 
   
-   python app.py
+   python manage.py runserver
