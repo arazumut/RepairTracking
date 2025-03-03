@@ -11,48 +11,72 @@
         <div class="card-body">
             <form method="POST">
                 {% csrf_token %}
-            
-                <label for="id_ad">Müşteri Adı:</label>
-                {{ form.ad }}
-            
-                <label for="id_telefon">Telefon:</label>
-                {{ form.telefon }}
-            
-                <label for="id_adres">Adres:</label>
-                {{ form.adres }}
-            
+                
+                <div class="form-group">
+                    <label for="id_ad">Müşteri Adı:</label>
+                    {{ form.ad }}
+                </div>
+                
+                <div class="form-group">
+                    <label for="id_telefon">Telefon:</label>
+                    {{ form.telefon }}
+                </div>
+                
+                <div class="form-group">
+                    <label for="id_adres">Adres:</label>
+                    {{ form.adres }}
+                </div>
+                
                 <hr>
-            
                 
                 <h4>Araç Bilgileri</h4>
-            
-                <label for="id_marka">Araç Markası:</label>
-                {{ form.marka }}
-            
-                <label for="id_model">Araç Modeli:</label>
-                {{ form.model }}
-            
-                <label for="id_plaka">Plaka:</label>
-                {{ form.plaka }}
-            
-                <label for="id_uretim_yili">Üretim Yılı:</label>
-                {{ form.uretim_yili }}
-            
+                
+                <div class="form-group">
+                    <label for="id_marka">Araç Markası:</label>
+                    {{ form.marka }}
+                </div>
+                
+                <div class="form-group">
+                    <label for="id_model">Araç Modeli:</label>
+                    {{ form.model }}
+                </div>
+                
+                <div class="form-group">
+                    <label for="id_plaka">Plaka:</label>
+                    {{ form.plaka }}
+                </div>
+                
+                <div class="form-group">
+                    <label for="id_uretim_yili">Üretim Yılı:</label>
+                    {{ form.uretim_yili }}
+                </div>
+                
                 <hr>
-            
                 
                 <h4>Araç Sorunu</h4>
-            
-                <label for="id_sorun_aciklama">Sorun Açıklaması:</label>
-                {{ form.sorun_aciklama }}
-            
+                
+                <div class="form-group">
+                    <label for="id_sorun_aciklama">Sorun Açıklaması:</label>
+                    {{ form.sorun_aciklama }}
+                </div>
+                
                 <br>
-                <button type="submit" class="btn btn-primary btn-lg">Kaydet</button>
+                <button type="submit" class="btn btn-primary btn-lg btn-block">Kaydet</button>
             </form>
             <style>
-
+                @media (max-width: 576px) {
+                    .form-group {
+                        margin-bottom: 1rem;
+                    }
+                    label {
+                        display: block;
+                        margin-bottom: 0.5rem;
+                    }
+                    .btn-block {
+                        width: 100%;
+                    }
+                }
             </style>
-            
         </div>
     </div>
 </div>

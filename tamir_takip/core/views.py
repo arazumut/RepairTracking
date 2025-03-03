@@ -12,6 +12,9 @@
 #müşteri sil
 #kullanıcı kayıt
 #api viewsetler
+#anasayfa
+#müşteri portalı
+#tamir durum
 
 
 from django.shortcuts import render
@@ -29,19 +32,25 @@ from .models import Musteri, Arac, IsEmri
 from .serializers import MusteriSerializer, AracSerializer, IsEmriSerializer
 from django.db.models import Q 
 from django.shortcuts import get_object_or_404
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.views.generic import TemplateView
+
+class HomeView(LoginRequiredMixin, TemplateView):
+    template_name = "home.html"
 
 
-@login_required
+# telefondan çalıştıracakken veya başka ortamda LOGİN RQUIRED KALDIR!
+
 def home(request):
     return render(request, 'core/home.html')
 
 
-@login_required
+
 def musteri_portal(request):
     musteriler = Musteri.objects.filter(user=request.user)
     return render(request, 'core/musteri_portal.html', {'musteriler': musteriler})
 
-@login_required
+
 def tamir_durum(request, pk):
     is_emri = get_object_or_404(IsEmri, pk=pk)
     return render(request, 'core/tamir_durum.html', {'is_emri': is_emri})
@@ -49,7 +58,7 @@ def tamir_durum(request, pk):
 
 
 def musteri_list(request):
-    query = request.GET.get("q", "")  # Kullanıcının arama terimi
+    query = request.GET.get("q", "")  
     musteriler = Musteri.objects.filter(Q(ad__icontains=query))
     return render(request, "core/musteri_list.html", {"musteriler": musteriler, "q": query})
 
