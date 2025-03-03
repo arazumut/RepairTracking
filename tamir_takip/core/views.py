@@ -27,26 +27,48 @@ from django.contrib.auth import login
 from rest_framework import viewsets
 from .models import Musteri, Arac, IsEmri
 from .serializers import MusteriSerializer, AracSerializer, IsEmriSerializer
+from django.db.models import Q 
+from django.shortcuts import get_object_or_404
+
 
 @login_required
 def home(request):
     return render(request, 'core/home.html')
 
+
 @login_required
+def musteri_portal(request):
+    musteriler = Musteri.objects.filter(user=request.user)
+    return render(request, 'core/musteri_portal.html', {'musteriler': musteriler})
+
+@login_required
+def tamir_durum(request, pk):
+    is_emri = get_object_or_404(IsEmri, pk=pk)
+    return render(request, 'core/tamir_durum.html', {'is_emri': is_emri})
+
+
+
 def musteri_list(request):
-    musteriler = Musteri.objects.all()
-    return render(request, 'core/musteri_list.html', {'musteriler': musteriler})
+    query = request.GET.get("q", "")  # Kullanıcının arama terimi
+    musteriler = Musteri.objects.filter(Q(ad__icontains=query))
+    return render(request, "core/musteri_list.html", {"musteriler": musteriler, "q": query})
 
-@login_required
+
 def arac_list(request):
-    araclar = Arac.objects.all()
-    return render(request, 'core/arac_list.html', {'araclar': araclar})
+    query = request.GET.get("q", "")  
+    araclar = Arac.objects.filter(Q(plaka__icontains=query))
+    return render(request, "core/arac_list.html", {"araclar": araclar, "q": query})
 
 
-@login_required
 def isemri_list(request):
+    durum = request.GET.get("durum", "")
     is_emirleri = IsEmri.objects.all()
-    return render(request, 'core/isemri_list.html', {'is_emirleri': is_emirleri})
+
+    if durum:
+        is_emirleri = is_emirleri.filter(durum=durum)
+
+    return render(request, "core/isemri_list.html", {"is_emirleri": is_emirleri, "durum": durum})
+
 
 
 from .forms import MusteriForm, AracForm
@@ -61,10 +83,10 @@ def musteri_ekle(request):
     if request.method == "POST":
         form = MusteriForm(request.POST)
         if form.is_valid():
-            # 1️⃣ Müşteriyi Kaydet
+            
             musteri = form.save()
 
-            # 2️⃣ Araç Bilgilerini Kaydet
+            
             arac = Arac.objects.create(
                 musteri=musteri,
                 marka=form.cleaned_data['marka'],

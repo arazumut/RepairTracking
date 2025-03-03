@@ -1,0 +1,18 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Tamir Durumu{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="text-primary">Tamir Durumu</h2>
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title">{{ is_emri.arac.marka }} {{ is_emri.arac.model }}</h5>
+            <p class="card-text"><strong>Durum:</strong> {{ is_emri.get_durum_display }}</p>
+            <p class="card-text"><strong>Açıklama:</strong> {{ is_emri.aciklama }}</p>
+            <p class="card-text"><strong>Başlangıç Tarihi:</strong> {{ is_emri.baslama_tarihi }}</p>
+            <p class="card-text"><strong>Bitiş Tarihi:</strong> {{ is_emri.bitis_tarihi }}</p>
+        </div>
+    </div>
+</div>
+{% endblock %}

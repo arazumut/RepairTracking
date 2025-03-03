@@ -4,6 +4,14 @@
 
 {% block content %}
 <h2>Araç Listesi</h2>
+
+<form method="GET" class="mb-4">
+    <div class="input-group">
+        <input type="text" name="q" placeholder="Plaka ara..." value="{{ request.GET.q }}" class="form-control">
+        <button type="submit" class="btn btn-primary">Ara</button>
+    </div>
+</form>
+
 <table class="table table-bordered">
     <thead>
         <tr>

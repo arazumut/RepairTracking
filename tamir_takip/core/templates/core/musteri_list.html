@@ -1,31 +1,76 @@
 {% extends 'core/base.html' %}
 
-{% block title %}Müşteriler{% endblock %}
+{% block title %}Müşteri Listesi{% endblock %}
 
 {% block content %}
-<h2>Müşteri Listesi</h2>
-<a href="{% url 'musteri_ekle' %}" class="btn btn-success mb-3">Yeni Müşteri Ekle</a>
-<table class="table table-bordered">
-    <thead>
-        <tr>
-            <th>Ad</th>
-            <th>Telefon</th>
-            <th>Adres</th>
-            <th>İşlemler</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for musteri in musteriler %}
-        <tr>
-            <td>{{ musteri.ad }}</td>
-            <td>{{ musteri.telefon }}</td>
-            <td>{{ musteri.adres }}</td>
-            <td>
-                <a href="{% url 'musteri_guncelle' musteri.id %}" class="btn btn-warning btn-sm">Düzenle</a>
-                <a href="{% url 'musteri_sil' musteri.id %}" class="btn btn-danger btn-sm">Sil</a>
-            </td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="text-primary">Müşteri Listesi</h2>
+        <a href="{% url 'musteri_ekle' %}" class="btn btn-success shadow">+ Yeni Müşteri</a>
+    </div>
+
+    
+    <form method="GET" class="mb-4">
+        <div class="input-group">
+            <input type="text" name="q" placeholder="Müşteri adı ara..." value="{{ request.GET.q }}" class="form-control">
+            <button type="submit" class="btn btn-primary">Ara</button>
+        </div>
+    </form>
+
+    
+    <div class="card shadow-lg">
+        <div class="card-body">
+            <table class="table table-hover">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Ad</th>
+                        <th>Telefon</th>
+                        <th>Adres</th>
+                        <th class="text-center">İşlemler</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for musteri in musteriler %}
+                        <tr>
+                            <td>{{ musteri.ad }}</td>
+                            <td>{{ musteri.telefon }}</td>
+                            <td>{{ musteri.adres }}</td>
+                            <td class="text-center">
+                                <a href="{% url 'musteri_guncelle' musteri.id %}" class="btn btn-warning btn-sm shadow-sm">✏ Düzenle</a>
+                                <a href="{% url 'musteri_sil' musteri.id %}" class="btn btn-danger btn-sm shadow-sm">🗑 Sil</a>
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="4" class="text-center text-muted">Müşteri bulunamadı.</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<style>
+    .btn {
+        transition: all 0.3s ease;
+    }
+
+    .btn-primary:hover {
+        background-color: #0056b3;
+    }
+
+    .btn-warning:hover {
+        background-color: #d39e00;
+    }
+
+    .btn-danger:hover {
+        background-color: #b30000;
+    }
+
+    .table-hover tbody tr:hover {
+        background-color: #f8f9fa;
+    }
+</style>
+
 {% endblock %}
