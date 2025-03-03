@@ -1,12 +1,59 @@
 {% extends 'core/base.html' %}
 
-{% block title %}Müşteri Ekle / Güncelle{% endblock %}
+{% block title %}Yeni Müşteri{% endblock %}
 
 {% block content %}
-<h2>Müşteri Bilgileri</h2>
-<form method="POST">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit" class="btn btn-primary">Kaydet</button>
-</form>
+<div class="container mt-4">
+    <div class="card shadow-lg">
+        <div class="card-header bg-primary text-white">
+            <h4>Yeni Müşteri Ekle</h4>
+        </div>
+        <div class="card-body">
+            <form method="POST">
+                {% csrf_token %}
+            
+                <label for="id_ad">Müşteri Adı:</label>
+                {{ form.ad }}
+            
+                <label for="id_telefon">Telefon:</label>
+                {{ form.telefon }}
+            
+                <label for="id_adres">Adres:</label>
+                {{ form.adres }}
+            
+                <hr>
+            
+                
+                <h4>Araç Bilgileri</h4>
+            
+                <label for="id_marka">Araç Markası:</label>
+                {{ form.marka }}
+            
+                <label for="id_model">Araç Modeli:</label>
+                {{ form.model }}
+            
+                <label for="id_plaka">Plaka:</label>
+                {{ form.plaka }}
+            
+                <label for="id_uretim_yili">Üretim Yılı:</label>
+                {{ form.uretim_yili }}
+            
+                <hr>
+            
+                
+                <h4>Araç Sorunu</h4>
+            
+                <label for="id_sorun_aciklama">Sorun Açıklaması:</label>
+                {{ form.sorun_aciklama }}
+            
+                <br>
+                <button type="submit" class="btn btn-primary btn-lg">Kaydet</button>
+            </form>
+            <style>
+
+            </style>
+            
+        </div>
+    </div>
+</div>
 {% endblock %}

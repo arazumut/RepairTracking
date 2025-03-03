@@ -1,10 +1,94 @@
 {% extends 'core/base.html' %}
 
-{% block title %}Ana Sayfa{% endblock %}
+{% block title %}Ana Sayfa - Tamir Takip Sistemi{% endblock %}
 
 {% block content %}
-<div class="text-center">
-    <h1>Hoş Geldiniz!</h1>
-    <p>Tamir takip sistemine hoş geldiniz. Aşağıdaki menüleri kullanarak işlemlerinizi gerçekleştirebilirsiniz.</p>
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card shadow-lg border-0 rounded-lg bg-gradient-info text-white">
+                <div class="card-body text-center">
+                    <h3 class="display-4 font-weight-bold">{{ musteri_sayisi }}</h3>
+                    <p class="lead">Müşteriler</p>
+                </div>
+                <div class="card-footer text-center">
+                    <a href="{% url 'musteri_list' %}" class="btn btn-outline-light btn-lg rounded-pill shadow-sm">
+                        <i class="fas fa-users"></i> Detaylar
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card shadow-lg border-0 rounded-lg bg-gradient-success text-white">
+                <div class="card-body text-center">
+                    <h3 class="display-4 font-weight-bold">{{ arac_sayisi }}</h3>
+                    <p class="lead">Araçlar</p>
+                </div>
+                <div class="card-footer text-center">
+                    <a href="{% url 'arac_list' %}" class="btn btn-outline-light btn-lg rounded-pill shadow-sm">
+                        <i class="fas fa-car"></i> Detaylar
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card shadow-lg border-0 rounded-lg bg-gradient-warning text-white">
+                <div class="card-body text-center">
+                    <h3 class="display-4 font-weight-bold">{{ isemri_sayisi }}</h3>
+                    <p class="lead">İş Emirleri</p>
+                </div>
+                <div class="card-footer text-center">
+                    <a href="{% url 'isemri_list' %}" class="btn btn-outline-light btn-lg rounded-pill shadow-sm">
+                        <i class="fas fa-clipboard-list"></i> Detaylar
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    
+    <div class="row mt-5">
+        <div class="col-md-8 offset-md-2">
+            <div class="card shadow-lg border-0">
+                <div class="card-header bg-primary text-white text-center">
+                    <h4>Genel Durum Grafiği</h4>
+                </div>
+                <div class="card-body">
+                    <canvas id="myChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
+
+<!-- Chart.js CDN grafik scripti yazılacak.  -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+
+<script>
+    var ctx = document.getElementById('myChart').getContext('2d');
+    var myChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ['Müşteriler', 'Araçlar', 'İş Emirleri'],
+            datasets: [{
+                label: 'Genel Durum',
+                data: [{{ musteri_sayisi }}, {{ arac_sayisi }}, {{ isemri_sayisi }}],
+                backgroundColor: ['#17a2b8', '#28a745', '#ffc107'],
+                borderColor: ['#117a8b', '#1e7e34', '#d39e00'],
+                borderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+</script>
 {% endblock %}

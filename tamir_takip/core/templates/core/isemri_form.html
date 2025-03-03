@@ -1,0 +1,21 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Yeni İş Emri{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card shadow-lg">
+        <div class="card-header bg-warning text-white">
+            <h4>Yeni İş Emri Ekle</h4>
+        </div>
+        <div class="card-body">
+            <form method="POST">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <button type="submit" class="btn btn-success">Kaydet</button>
+                <a href="{% url 'isemri_list' %}" class="btn btn-secondary">İptal</a>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

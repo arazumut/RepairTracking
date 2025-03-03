@@ -2,6 +2,21 @@ from django.urls import path
 from django.contrib.auth import views as auth_views
 from .views import home, musteri_list, arac_list, isemri_list, musteri_ekle, musteri_guncelle, musteri_sil
 
+from django.urls import path, include
+from rest_framework.routers import DefaultRouter
+from .views import MusteriViewSet, AracViewSet, IsEmriViewSet
+
+#router ile api yönlendrme yapılır bunu unutma
+router = DefaultRouter()
+router.register(r'musteriler', MusteriViewSet)
+router.register(r'araclar', AracViewSet)
+router.register(r'isemirleri', IsEmriViewSet)
+
+urlpatterns = [
+    path('api/', include(router.urls)),  
+]
+
+
 urlpatterns = [
 
     path('', home, name='home'),

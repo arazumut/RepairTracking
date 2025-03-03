@@ -3,6 +3,13 @@ from pathlib import Path
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# filepath: /Users/umutaraz/Desktop/Tüm hayatım burda/CustomerANDvehicleManagement/tamir_takip/tamir_takip/settings.py
+STATICFILES_DIRS = [
+    BASE_DIR / "static",
+    BASE_DIR / "core/static", #tamir_takip değil core uygulamasının içindeki static dosyaları
+]
+
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
@@ -12,7 +19,7 @@ SECRET_KEY = 'django-insecure-0-p#)v(t1k3!&kek!m@wdlo+@^(rek@=i#3@9o%6bejak+^d4y
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True  # False yapmayı unutmayın üretim ortamına geçtiğinizde!
 
-ALLOWED_HOSTS = ['*']  # Geliştirme sırasında tüm hostlara izin verebiliriz
+ALLOWED_HOSTS = ['*']  
 
 # Application definition
 INSTALLED_APPS = [
@@ -22,7 +29,10 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'core',
+    'core',#uygulamamız
+    'django_adminlte3',#temamız
+    'rest_framework', #api framework
+    
 ]
 
 MIDDLEWARE = [

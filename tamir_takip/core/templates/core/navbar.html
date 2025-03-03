@@ -1,0 +1,15 @@
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <a class="navbar-brand" href="{% url 'home' %}">Tamir Takip</a>
+    <div class="collapse navbar-collapse">
+        <ul class="navbar-nav mr-auto">
+            <li class="nav-item"><a class="nav-link" href="{% url 'musteri_list' %}">Müşteriler</a></li>
+            <li class="nav-item"><a class="nav-link" href="{% url 'arac_list' %}">Araçlar</a></li>
+            <li class="nav-item"><a class="nav-link" href="{% url 'isemri_list' %}">İş Emirleri</a></li>
+        </ul>
+        <ul class="navbar-nav">
+            <li class="nav-item"><a class="btn btn-primary btn-sm mx-1" href="{% url 'musteri_ekle' %}">+ Müşteri</a></li>
+            <li class="nav-item"><a class="btn btn-success btn-sm mx-1" href="{% url 'arac_ekle' %}">+ Araç</a></li>
+            <li class="nav-item"><a class="btn btn-warning btn-sm mx-1" href="{% url 'isemri_ekle' %}">+ İş Emri</a></li>
+        </ul>
+    </div>
+</nav>
