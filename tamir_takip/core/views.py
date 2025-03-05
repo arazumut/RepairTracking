@@ -23,7 +23,7 @@ from django.shortcuts import render, redirect
 from .forms import MusteriForm
 from .models import IsEmri
 from .models import Arac
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import render, redirect
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login
@@ -34,15 +34,22 @@ from django.db.models import Q
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import TemplateView
+from .forms import AracForm, IsEmriForm  
+from django.contrib.auth.models import Group
+from django.contrib import messages
 
 class HomeView(LoginRequiredMixin, TemplateView):
     template_name = "home.html"
 
 
-# telefondan çalıştıracakken veya başka ortamda LOGİN RQUIRED KALDIR!
 
+
+@login_required
 def home(request):
-    return render(request, 'core/home.html')
+    if request.user.groups.filter(name='Dükkan Sahibi').exists():
+        return render(request, 'core/admin_home.html')  # Dükkan sahibi için özel bir şablon
+    else:
+        return render(request, 'core/customer_home.html')  # Müşteri için özel bir şablon
 
 
 
@@ -146,8 +153,18 @@ def register(request):
         form = UserCreationForm(request.POST)
         if form.is_valid():
             user = form.save()
-            login(request, user)  
-            return redirect('home')  
+            # Kullanıcıyı "Müşteri" grubuna ekle
+            try:
+                customer_group = Group.objects.get(name='Müşteri')
+            except Group.DoesNotExist:
+                # Eğer grup yoksa oluştur
+                customer_group = Group.objects.create(name='Müşteri')
+            customer_group.user_set.add(user)
+            
+            # Kullanıcıyı otomatik olarak giriş yap
+            login(request, user)
+            messages.success(request, 'Hesabınız başarıyla oluşturuldu!')
+            return redirect('home')
     else:
         form = UserCreationForm()
     return render(request, 'core/register.html', {'form': form})
@@ -166,6 +183,50 @@ class AracViewSet(viewsets.ModelViewSet):
 class IsEmriViewSet(viewsets.ModelViewSet):
     queryset = IsEmri.objects.all()
     serializer_class = IsEmriSerializer
+
+def arac_guncelle(request, pk):
+    arac = get_object_or_404(Arac, pk=pk)
+    if request.method == "POST":
+        form = AracForm(request.POST, instance=arac)
+        if form.is_valid():
+            form.save()
+            return redirect('arac_list')
+    else:
+        form = AracForm(instance=arac)
+    return render(request, 'core/arac_guncelle.html', {'form': form})
+
+def arac_sil(request, pk):
+    arac = get_object_or_404(Arac, pk=pk)
+    if request.method == "POST":
+        arac.delete()
+        return redirect('arac_list')
+    return render(request, 'core/arac_sil.html', {'arac': arac})
+
+def isemri_guncelle(request, pk):
+    is_emri = get_object_or_404(IsEmri, pk=pk)
+    if request.method == "POST":
+        form = IsEmriForm(request.POST, instance=is_emri)
+        if form.is_valid():
+            form.save()
+            return redirect('isemri_list')  
+    else:
+        form = IsEmriForm(instance=is_emri)
+    return render(request, 'core/isemri_guncelle.html', {'form': form})
+
+def isemri_sil(request, pk):
+    is_emri = get_object_or_404(IsEmri, pk=pk)
+    if request.method == "POST":
+        is_emri.delete()
+        return redirect('isemri_list')
+    return render(request, 'core/isemri_sil.html', {'is_emri': is_emri})
+
+def is_store_owner(user):
+    return user.groups.filter(name='Dükkan Sahibi').exists()
+
+@user_passes_test(is_store_owner)
+def some_admin_view(request):
+    # Dükkan sahibi için özel içerik
+    return render(request, 'core/some_admin_view.html')
 
 
 

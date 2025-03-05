@@ -4,7 +4,11 @@ from rest_framework.routers import DefaultRouter
 from .views import (
     home, musteri_list, arac_list, isemri_list, musteri_ekle,
     musteri_guncelle, musteri_sil, musteri_portal, tamir_durum,
-    MusteriViewSet, AracViewSet, IsEmriViewSet, register  # Kayıt fonksiyonu eklendi
+    MusteriViewSet, AracViewSet, IsEmriViewSet, register,  # Kayıt fonksiyonu eklendi
+    arac_guncelle,  # Arac güncelleme fonksiyonunu ekleyin
+    arac_sil,  # Arac silme fonksiyonunu ekleyin
+    isemri_guncelle,  # İş emri güncelleme fonksiyonunu ekleyin
+    isemri_sil,  
 )
 
 
@@ -18,7 +22,7 @@ urlpatterns = [
     path('', home, name='home'),
 
     
-    path('login/', auth_views.LoginView.as_view(template_name='core/login.html'), name='login'),
+    path('accounts/login/', auth_views.LoginView.as_view(template_name='core/login.html'), name='login'),
     path('logout/', auth_views.LogoutView.as_view(next_page='login'), name='logout'),
 
     
@@ -29,7 +33,11 @@ urlpatterns = [
 
 
     path('araclar/', arac_list, name='arac_list'),
+    path('arac-guncelle/<int:pk>/', arac_guncelle, name='arac_guncelle'),  
+    path('arac-sil/<int:pk>/', arac_sil, name='arac_sil'),  
     path('isemirleri/', isemri_list, name='isemri_list'),
+    path('isemri-guncelle/<int:pk>/', isemri_guncelle, name='isemri_guncelle'),  
+    path('isemri-sil/<int:pk>/', isemri_sil, name='isemri_sil'), 
 
     
     path('musteri-portal/', musteri_portal, name='musteri_portal'),

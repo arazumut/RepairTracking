@@ -1,5 +1,5 @@
 from django import forms
-from .models import Musteri, Arac
+from .models import Musteri, Arac, IsEmri
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit
 
@@ -32,3 +32,8 @@ class AracForm(forms.ModelForm):
         self.helper = FormHelper()
         self.helper.form_method = "post"
         self.helper.add_input(Submit("submit", "Kaydet"))
+
+class IsEmriForm(forms.ModelForm):
+    class Meta:
+        model = IsEmri
+        fields = ['aciklama', 'durum', 'teknisyen'] 

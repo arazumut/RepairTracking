@@ -1,35 +1,49 @@
 {% extends 'core/base.html' %}
 
-{% block title %}Araçlar{% endblock %}
+{% block title %}Araç Listesi{% endblock %}
 
 {% block content %}
-<h2>Araç Listesi</h2>
+<div class="container mt-4">
+    <h2 class="text-primary">Araç Listesi</h2>
+    <input type="text" id="searchInput" placeholder="Araç Ara..." class="form-control mb-3">
+    
+    <table class="table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Marka</th>
+                <th>Model</th>
+                <th>Yıl</th>
+                <th>İşlemler</th>
+            </tr>
+        </thead>
+        <tbody id="aracTable">
+            {% for arac in araclar %}
+            <tr>
+                <td>{{ arac.id }}</td>
+                <td>{{ arac.marka }}</td>
+                <td>{{ arac.model }}</td>
+                <td>{{ arac.yil }}</td>
+                <td>
+                    <a href="{% url 'arac_guncelle' arac.id %}">Düzenle</a>
+                    <a href="{% url 'arac_sil' arac.id %}">Sil</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
 
-<form method="GET" class="mb-4">
-    <div class="input-group">
-        <input type="text" name="q" placeholder="Plaka ara..." value="{{ request.GET.q }}" class="form-control">
-        <button type="submit" class="btn btn-primary">Ara</button>
-    </div>
-</form>
+<script>
+    document.getElementById('searchInput').addEventListener('input', function() {
+        const filter = this.value.toLowerCase();
+        const rows = document.querySelectorAll('#aracTable tr');
 
-<table class="table table-bordered">
-    <thead>
-        <tr>
-            <th>Plaka</th>
-            <th>Marka</th>
-            <th>Model</th>
-            <th>Üretim Yılı</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for arac in araclar %}
-        <tr>
-            <td>{{ arac.plaka }}</td>
-            <td>{{ arac.marka }}</td>
-            <td>{{ arac.model }}</td>
-            <td>{{ arac.uretim_yili }}</td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
+        rows.forEach(row => {
+            const cells = row.getElementsByTagName('td');
+            const match = Array.from(cells).some(cell => cell.textContent.toLowerCase().includes(filter));
+            row.style.display = match ? '' : 'none';
+        });
+    });
+</script>
 {% endblock %}

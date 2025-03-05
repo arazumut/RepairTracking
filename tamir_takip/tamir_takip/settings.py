@@ -33,7 +33,7 @@ INSTALLED_APPS = [
     'core',
     'django_adminlte3',
     'rest_framework', 
-    
+    'widget_tweaks',
 ]
 
 MIDDLEWARE = [
@@ -117,6 +117,8 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# Log out redirect
-#LOGOUT_REDIRECT_URL = 'login'  # Çıkış yaptıktan sonra kullanıcı login sayfasına yönlendirilir.
+# Authentication settings
+LOGIN_URL = 'login'  # URL adı
+LOGIN_REDIRECT_URL = 'home'  # Giriş sonrası yönlendirilecek sayfa
+LOGOUT_REDIRECT_URL = 'login'  # Çıkış sonrası yönlendirilecek sayfa
 

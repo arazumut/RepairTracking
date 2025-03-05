@@ -1,0 +1,15 @@
+{% extends 'core/base.html' %}
+
+{% block title %}İş Emri Sil{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="text-danger">İş Emri Sil</h2>
+    <p>Bu iş emrini silmek istediğinize emin misiniz?</p>
+    <form method="POST">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger">Evet, sil</button>
+        <a href="{% url 'isemri_list' %}" class="btn btn-secondary">İptal</a>
+    </form>
+</div>
+{% endblock %} 

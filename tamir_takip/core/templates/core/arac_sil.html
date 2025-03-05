@@ -1,0 +1,15 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Araç Sil{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="text-danger">Araç Sil</h2>
+    <p>Bu aracı silmek istediğinize emin misiniz?</p>
+    <form method="POST">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger">Evet, sil</button>
+        <a href="{% url 'arac_list' %}" class="btn btn-secondary">İptal</a>
+    </form>
+</div>
+{% endblock %} 

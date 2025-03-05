@@ -1,0 +1,14 @@
+{% extends 'core/base.html' %}
+
+{% block title %}İş Emri Güncelle{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="text-primary">İş Emri Güncelle</h2>
+    <form method="POST">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-success">Güncelle</button>
+    </form>
+</div>
+{% endblock %} 
