@@ -17,15 +17,15 @@ STATICFILES_DIRS = [
 SECRET_KEY = 'django-insecure-0-p#)v(t1k3!&kek!m@wdlo+@^(rek@=i#3@9o%6bejak+^d4y'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True  # False yapmayı unutmayın üretim ortamına geçtiğinizde!
+DEBUG = True  # Geliştirme aşamasında True olmalı
 
-ALLOWED_HOSTS = ['*'] # '*' ekle burda yıldız ekleyerek herkese açık hale getir.
+ALLOWED_HOSTS = ['*', 'localhost', '127.0.0.1', '0.0.0.0']
 
 
 # Application definition
 INSTALLED_APPS = [
     'django.contrib.admin',
-    'django.contrib.auth',
+    'django.contrib.auth',  
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
@@ -51,7 +51,7 @@ ROOT_URLCONF = 'tamir_takip.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],  
+        'DIRS': [],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -77,24 +77,6 @@ DATABASES = {
 }
 
 
-# Password validation
-# https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
-AUTH_PASSWORD_VALIDATORS = [
-    {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
-    },
-]
-
-
 # Internationalization
 # https://docs.djangoproject.com/en/5.1/topics/i18n/
 LANGUAGE_CODE = 'tr'  # Türkçe dili tercih edebilirsiniz
@@ -116,9 +98,4 @@ STATIC_URL = 'static/'
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
-# Authentication settings
-LOGIN_URL = 'login'  # URL adı
-LOGIN_REDIRECT_URL = 'home'  # Giriş sonrası yönlendirilecek sayfa
-LOGOUT_REDIRECT_URL = 'login'  # Çıkış sonrası yönlendirilecek sayfa
 

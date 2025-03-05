@@ -1,76 +1,70 @@
 {% extends 'core/base.html' %}
+{% load static %}
 
-{% block title %}İş Emirleri Listesi{% endblock %}
+{% block title %}İş Emirleri{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-    <h2 class="text-primary">İş Emirleri Listesi</h2>
-    <input type="text" id="searchInput" placeholder="İş Emri Ara..." class="form-control mb-3">
-
-    <div class="card shadow-lg">
-        <div class="card-body">
-            <table class="table table-hover">
-                <thead class="table-dark">
-                    <tr>
-                        <th>ID</th>
-                        <th>Açıklama</th>
-                        <th>Durum</th>
-                        <th>Teknisyen</th>
-                        <th class="text-center">İşlemler</th>
-                    </tr>
-                </thead>
-                <tbody id="isemriTable">
-                    {% for is_emri in is_emirleri %}
-                        <tr>
-                            <td>{{ is_emri.id }}</td>
-                            <td>{{ is_emri.aciklama }}</td>
-                            <td>{{ is_emri.durum }}</td>
-                            <td>{{ is_emri.teknisyen }}</td>
-                            <td class="text-center">
-                                <a href="{% url 'isemri_guncelle' is_emri.id %}" class="btn btn-warning btn-sm shadow-sm">✏ Düzenle</a>
-                                <a href="{% url 'isemri_sil' is_emri.id %}" class="btn btn-danger btn-sm shadow-sm">🗑 Sil</a>
-                            </td>
-                        </tr>
-                    {% empty %}
-                        <tr>
-                            <td colspan="5" class="text-center text-muted">İş emri bulunamadı.</td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h3 class="card-title">İş Emri Listesi</h3>
+                    <a href="{% url 'isemri_ekle' %}" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Yeni İş Emri
+                    </a>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Müşteri</th>
+                                    <th>Araç</th>
+                                    <th>Durum</th>
+                                    <th>Tarih</th>
+                                    <th>İşlemler</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for isemri in isemirleri %}
+                                <tr>
+                                    <td>{{ isemri.arac.musteri.ad }}</td>
+                                    <td>{{ isemri.arac.marka }} {{ isemri.arac.model }}</td>
+                                    <td>
+                                        <span class="badge {% if isemri.durum == 'beklemede' %}bg-warning
+                                                         {% elif isemri.durum == 'devam_ediyor' %}bg-info
+                                                         {% elif isemri.durum == 'tamamlandi' %}bg-success
+                                                         {% else %}bg-secondary{% endif %}">
+                                            {{ isemri.get_durum_display }}
+                                        </span>
+                                    </td>
+                                    <td>{{ isemri.olusturma_tarihi|date:"d.m.Y H:i" }}</td>
+                                    <td>
+                                        <div class="btn-group">
+                                            <a href="{% url 'isemri_detay' isemri.pk %}" class="btn btn-sm btn-info" title="Detay">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                            <a href="{% url 'isemri_guncelle' isemri.pk %}" class="btn btn-sm btn-warning" title="Düzenle">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <a href="{% url 'isemri_sil' isemri.pk %}" class="btn btn-sm btn-danger" title="Sil">
+                                                <i class="fas fa-trash"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="5" class="text-center">Henüz iş emri kaydı bulunmuyor.</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
-
-<style>
-    .btn {
-        transition: all 0.3s ease;
-    }
-
-    .btn-warning:hover {
-        background-color: #d39e00;
-    }
-
-    .btn-danger:hover {
-        background-color: #b30000;
-    }
-
-    .table-hover tbody tr:hover {
-        background-color: #f8f9fa;
-    }
-</style>
-
-<script>
-    document.getElementById('searchInput').addEventListener('input', function() {
-        const filter = this.value.toLowerCase();
-        const rows = document.querySelectorAll('#isemriTable tr');
-
-        rows.forEach(row => {
-            const cells = row.getElementsByTagName('td');
-            const match = Array.from(cells).some(cell => cell.textContent.toLowerCase().includes(filter));
-            row.style.display = match ? '' : 'none';
-        });
-    });
-</script>
-
 {% endblock %}

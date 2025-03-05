@@ -15,7 +15,6 @@ class MusteriForm(forms.ModelForm):
         model = Musteri
         fields = ['ad', 'telefon', 'adres', 'marka', 'model', 'plaka', 'uretim_yili', 'sorun_aciklama']
 
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.helper = FormHelper()
@@ -36,4 +35,10 @@ class AracForm(forms.ModelForm):
 class IsEmriForm(forms.ModelForm):
     class Meta:
         model = IsEmri
-        fields = ['aciklama', 'durum', 'teknisyen'] 
+        fields = ['aciklama', 'durum']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.form_method = "post"
+        self.helper.add_input(Submit("submit", "Kaydet")) 

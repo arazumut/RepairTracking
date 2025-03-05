@@ -1,82 +1,73 @@
 {% extends 'core/base.html' %}
+{% load static %}
 
-{% block title %}Müşteri Listesi{% endblock %}
+{% block title %}Müşteriler{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <h2 class="text-primary">Müşteri Listesi</h2>
-        <a href="{% url 'musteri_ekle' %}" class="btn btn-success shadow">+ Yeni Müşteri</a>
-    </div>
-
-    <input type="text" id="searchInput" placeholder="Müşteri Ara..." class="form-control mb-3">
-
-    <div class="card shadow-lg">
-        <div class="card-body">
-            <table class="table table-hover">
-                <thead class="table-dark">
-                    <tr>
-                        <th>Ad</th>
-                        <th>Telefon</th>
-                        <th>Adres</th>
-                        <th class="text-center">İşlemler</th>
-                    </tr>
-                </thead>
-                <tbody id="musteriTable">
-                    {% for musteri in musteriler %}
-                        <tr>
-                            <td>{{ musteri.ad }}</td>
-                            <td>{{ musteri.telefon }}</td>
-                            <td>{{ musteri.adres }}</td>
-                            <td class="text-center">
-                                <a href="{% url 'musteri_guncelle' musteri.id %}" class="btn btn-warning btn-sm shadow-sm">✏ Düzenle</a>
-                                <a href="{% url 'musteri_sil' musteri.id %}" class="btn btn-danger btn-sm shadow-sm">🗑 Sil</a>
-                            </td>
-                        </tr>
-                    {% empty %}
-                        <tr>
-                            <td colspan="4" class="text-center text-muted">Müşteri bulunamadı.</td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h3 class="card-title">Müşteri Listesi</h3>
+                    <a href="{% url 'musteri_ekle' %}" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Yeni Müşteri
+                    </a>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Ad</th>
+                                    <th>Telefon</th>
+                                    <th>Adres</th>
+                                    <th>Araç</th>
+                                    <th>İşlemler</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for musteri in musteriler %}
+                                <tr>
+                                    <td>{{ musteri.ad }}</td>
+                                    <td>
+                                        <a href="tel:{{ musteri.telefon }}" class="text-primary">
+                                            {{ musteri.telefon }}
+                                        </a>
+                                    </td>
+                                    <td>{{ musteri.adres }}</td>
+                                    <td>
+                                        {% if musteri.arac_set.exists %}
+                                            {{ musteri.arac_set.first.marka }} {{ musteri.arac_set.first.model }}
+                                        {% else %}
+                                            <span class="text-muted">Araç yok</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <div class="btn-group">
+                                            <a href="{% url 'musteri_detay' musteri.pk %}" class="btn btn-sm btn-info" title="Detay">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                            <a href="{% url 'musteri_guncelle' musteri.pk %}" class="btn btn-sm btn-warning" title="Düzenle">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <a href="{% url 'musteri_sil' musteri.pk %}" class="btn btn-sm btn-danger" title="Sil">
+                                                <i class="fas fa-trash"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="5" class="text-center">Henüz müşteri kaydı bulunmuyor.</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
-
-<style>
-    .btn {
-        transition: all 0.3s ease;
-    }
-
-    .btn-primary:hover {
-        background-color: #0056b3;
-    }
-
-    .btn-warning:hover {
-        background-color: #d39e00;
-    }
-
-    .btn-danger:hover {
-        background-color: #b30000;
-    }
-
-    .table-hover tbody tr:hover {
-        background-color: #f8f9fa;
-    }
-</style>
-
-<script>
-    document.getElementById('searchInput').addEventListener('input', function() {
-        const filter = this.value.toLowerCase();
-        const rows = document.querySelectorAll('#musteriTable tr');
-
-        rows.forEach(row => {
-            const cells = row.getElementsByTagName('td');
-            const match = Array.from(cells).some(cell => cell.textContent.toLowerCase().includes(filter));
-            row.style.display = match ? '' : 'none';
-        });
-    });
-</script>
-
 {% endblock %}

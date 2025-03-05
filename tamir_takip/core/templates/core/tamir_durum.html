@@ -1,18 +1,86 @@
 {% extends 'core/base.html' %}
 
-{% block title %}Tamir Durumu{% endblock %}
+{% block title %}Tamir Durumu - {{ musteri.ad }}{% endblock %}
 
 {% block content %}
 <div class="container mt-4">
-    <h2 class="text-primary">Tamir Durumu</h2>
-    <div class="card">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="text-primary">{{ musteri.ad }} - Tamir Durumu</h2>
+        <a href="{% url 'musteri_list' %}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Geri Dön
+        </a>
+    </div>
+
+    <div class="card mb-4">
         <div class="card-body">
-            <h5 class="card-title">{{ is_emri.arac.marka }} {{ is_emri.arac.model }}</h5>
-            <p class="card-text"><strong>Durum:</strong> {{ is_emri.get_durum_display }}</p>
-            <p class="card-text"><strong>Açıklama:</strong> {{ is_emri.aciklama }}</p>
-            <p class="card-text"><strong>Başlangıç Tarihi:</strong> {{ is_emri.baslama_tarihi }}</p>
-            <p class="card-text"><strong>Bitiş Tarihi:</strong> {{ is_emri.bitis_tarihi }}</p>
+            <h5 class="card-title">Müşteri Bilgileri</h5>
+            <p><strong>Telefon:</strong> {{ musteri.telefon }}</p>
+            <p><strong>Adres:</strong> {{ musteri.adres }}</p>
+            <p><strong>E-posta:</strong> {{ musteri.email }}</p>
         </div>
+    </div>
+
+    <h3 class="text-primary mb-3">Araçlar</h3>
+    <div class="table-responsive mb-4">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Plaka</th>
+                    <th>Marka</th>
+                    <th>Model</th>
+                    <th>Üretim Yılı</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for arac in araclar %}
+                <tr>
+                    <td>{{ arac.plaka }}</td>
+                    <td>{{ arac.marka }}</td>
+                    <td>{{ arac.model }}</td>
+                    <td>{{ arac.uretim_yili }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4" class="text-center">Kayıtlı araç bulunmamaktadır.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <h3 class="text-primary mb-3">İş Emirleri</h3>
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Araç</th>
+                    <th>Açıklama</th>
+                    <th>Durum</th>
+                    <th>Tarih</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for is_emri in is_emirleri %}
+                <tr>
+                    <td>{{ is_emri.arac.plaka }}</td>
+                    <td>{{ is_emri.aciklama }}</td>
+                    <td>
+                        <span class="badge {% if is_emri.durum == 'beklemede' %}bg-warning
+                                          {% elif is_emri.durum == 'tamirde' %}bg-info
+                                          {% elif is_emri.durum == 'tamamlandi' %}bg-success
+                                          {% else %}bg-secondary{% endif %}">
+                            {{ is_emri.get_durum_display }}
+                        </span>
+                    </td>
+                    <td>{{ is_emri.olusturma_tarihi|date:"d.m.Y H:i" }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4" class="text-center">Kayıtlı iş emri bulunmamaktadır.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
 </div>
 {% endblock %}

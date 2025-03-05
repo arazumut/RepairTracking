@@ -1,0 +1,100 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}Araç Detayı{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h3 class="card-title">Araç Detayı</h3>
+                    <div>
+                        <a href="{% url 'arac_guncelle' arac.pk %}" class="btn btn-warning">
+                            <i class="fas fa-edit"></i> Düzenle
+                        </a>
+                        <a href="{% url 'arac_list' %}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Geri
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h5>Araç Bilgileri</h5>
+                            <table class="table">
+                                <tr>
+                                    <th>Müşteri:</th>
+                                    <td>{{ arac.musteri.ad }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Marka:</th>
+                                    <td>{{ arac.marka }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Model:</th>
+                                    <td>{{ arac.model }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Plaka:</th>
+                                    <td>{{ arac.plaka }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Üretim Yılı:</th>
+                                    <td>{{ arac.uretim_yili }}</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <h5>İş Emirleri</h5>
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Durum</th>
+                                            <th>Açıklama</th>
+                                            <th>Tarih</th>
+                                            <th>İşlemler</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for isemri in is_emirleri %}
+                                        <tr>
+                                            <td>
+                                                <span class="badge {% if isemri.durum == 'beklemede' %}bg-warning
+                                                                 {% elif isemri.durum == 'devam_ediyor' %}bg-info
+                                                                 {% elif isemri.durum == 'tamamlandi' %}bg-success
+                                                                 {% else %}bg-secondary{% endif %}">
+                                                    {{ isemri.get_durum_display }}
+                                                </span>
+                                            </td>
+                                            <td>{{ isemri.aciklama }}</td>
+                                            <td>{{ isemri.olusturma_tarihi|date:"d.m.Y H:i" }}</td>
+                                            <td>
+                                                <div class="btn-group">
+                                                    <a href="{% url 'isemri_guncelle' isemri.pk %}" class="btn btn-sm btn-warning" title="Düzenle">
+                                                        <i class="fas fa-edit"></i>
+                                                    </a>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        {% empty %}
+                                        <tr>
+                                            <td colspan="4" class="text-center">Bu araca ait iş emri bulunmuyor.</td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

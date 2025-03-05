@@ -4,13 +4,79 @@
 
 {% block content %}
 <div class="container mt-4">
-    <h2 class="text-primary">Müşteri Portalı</h2>
-    <div class="list-group">
-        {% for musteri in musteriler %}
-            <a href="{% url 'tamir_durum' musteri.id %}" class="list-group-item list-group-item-action">
-                {{ musteri.ad }} - {{ musteri.telefon }}
-            </a>
-        {% endfor %}
+    <h2 class="text-primary mb-4">Müşteri Bilgileri</h2>
+    
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5 class="card-title">Kişisel Bilgiler</h5>
+            <p><strong>Ad Soyad:</strong> {{ musteri.ad }}</p>
+            <p><strong>Telefon:</strong> {{ musteri.telefon }}</p>
+            <p><strong>Adres:</strong> {{ musteri.adres }}</p>
+            <p><strong>E-posta:</strong> {{ musteri.email }}</p>
+        </div>
+    </div>
+
+    <h3 class="text-primary mb-3">Araçlarım</h3>
+    <div class="table-responsive mb-4">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Plaka</th>
+                    <th>Marka</th>
+                    <th>Model</th>
+                    <th>Üretim Yılı</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for arac in araclar %}
+                <tr>
+                    <td>{{ arac.plaka }}</td>
+                    <td>{{ arac.marka }}</td>
+                    <td>{{ arac.model }}</td>
+                    <td>{{ arac.uretim_yili }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4" class="text-center">Kayıtlı araç bulunmamaktadır.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <h3 class="text-primary mb-3">İş Emirlerim</h3>
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Araç</th>
+                    <th>Açıklama</th>
+                    <th>Durum</th>
+                    <th>Tarih</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for is_emri in is_emirleri %}
+                <tr>
+                    <td>{{ is_emri.arac.plaka }}</td>
+                    <td>{{ is_emri.aciklama }}</td>
+                    <td>
+                        <span class="badge {% if is_emri.durum == 'beklemede' %}bg-warning
+                                          {% elif is_emri.durum == 'tamirde' %}bg-info
+                                          {% elif is_emri.durum == 'tamamlandi' %}bg-success
+                                          {% else %}bg-secondary{% endif %}">
+                            {{ is_emri.get_durum_display }}
+                        </span>
+                    </td>
+                    <td>{{ is_emri.olusturma_tarihi|date:"d.m.Y H:i" }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4" class="text-center">Kayıtlı iş emri bulunmamaktadır.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
 </div>
 {% endblock %}
