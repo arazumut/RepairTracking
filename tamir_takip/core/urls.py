@@ -4,7 +4,7 @@ from rest_framework.routers import DefaultRouter
 from .views import (
     home, musteri_list, arac_list, isemri_list, musteri_ekle,
     musteri_guncelle, musteri_sil, musteri_portal, tamir_durum,
-    MusteriViewSet, AracViewSet, IsEmriViewSet, register  # Kayıt fonksiyonu eklendi
+    MusteriViewSet, AracViewSet, IsEmriViewSet, register, arac_ekle, isemri_ekle  
 )
 
 
@@ -29,7 +29,9 @@ urlpatterns = [
 
 
     path('araclar/', arac_list, name='arac_list'),
+    path('arac-ekle/', arac_ekle, name='arac_ekle'),
     path('isemirleri/', isemri_list, name='isemri_list'),
+    path('isemri-ekle/', isemri_ekle, name='isemri_ekle'),  
 
     
     path('musteri-portal/', musteri_portal, name='musteri_portal'),

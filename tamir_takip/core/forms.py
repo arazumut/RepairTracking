@@ -1,5 +1,5 @@
 from django import forms
-from .models import Musteri, Arac
+from .models import Musteri, Arac, IsEmri
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit
 
@@ -25,7 +25,22 @@ class MusteriForm(forms.ModelForm):
 class AracForm(forms.ModelForm):
     class Meta:
         model = Arac
-        fields = ['marka', 'model', 'plaka', 'uretim_yili']
+        fields = ['musteri', 'marka', 'model', 'plaka', 'uretim_yili']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.form_method = "post"
+        self.helper.add_input(Submit("submit", "Kaydet"))
+
+class IsEmriForm(forms.ModelForm):
+    class Meta:
+        model = IsEmri
+        fields = ['arac', 'aciklama', 'durum', 'teknisyen', 'baslama_tarihi', 'bitis_tarihi']
+        widgets = {
+            'baslama_tarihi': forms.DateTimeInput(attrs={'type': 'datetime-local'}),
+            'bitis_tarihi': forms.DateTimeInput(attrs={'type': 'datetime-local'}),
+        }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

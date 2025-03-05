@@ -3,27 +3,71 @@
 {% block title %}İş Emirleri{% endblock %}
 
 {% block content %}
-<h2>İş Emirleri</h2>
-<table class="table table-bordered">
-    <thead>
-        <tr>
-            <th>Açıklama</th>
-            <th>Durum</th>
-            <th>Teknisyen</th>
-            <th>Başlangıç</th>
-            <th>Bitiş</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for isemri in is_emirleri %}
-        <tr>
-            <td>{{ isemri.aciklama }}</td>
-            <td>{{ isemri.get_durum_display }}</td>
-            <td>{{ isemri.teknisyen.username }}</td>
-            <td>{{ isemri.baslama_tarihi }}</td>
-            <td>{{ isemri.bitis_tarihi }}</td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="text-primary">İş Emirleri</h2>
+        <a href="{% url 'isemri_ekle' %}" class="btn btn-success shadow">+ Yeni İş Emri</a>
+    </div>
+
+    <div class="input-group mb-4">
+        <input type="text" id="isemriSearch" class="form-control" placeholder="Açıklama, durum veya teknisyen ara...">
+        <div class="input-group-append">
+            <span class="input-group-text"><i class="fas fa-search"></i></span>
+        </div>
+    </div>
+
+    <div class="card shadow-lg">
+        <div class="card-body">
+            <table class="table table-hover" id="isemriTable">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Açıklama</th>
+                        <th>Durum</th>
+                        <th>Teknisyen</th>
+                        <th>Başlangıç</th>
+                        <th>Bitiş</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for isemri in is_emirleri %}
+                    <tr>
+                        <td>{{ isemri.aciklama }}</td>
+                        <td>{{ isemri.get_durum_display }}</td>
+                        <td>{{ isemri.teknisyen.username }}</td>
+                        <td>{{ isemri.baslama_tarihi }}</td>
+                        <td>{{ isemri.bitis_tarihi }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center text-muted">İş emri bulunamadı.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<style>
+    .btn {
+        transition: all 0.3s ease;
+    }
+
+    .btn-success:hover {
+        background-color: #218838;
+    }
+
+    .table-hover tbody tr:hover {
+        background-color: #f8f9fa;
+    }
+</style>
+
+{% load static %}
+<script src="{% static 'js/live-search.js' %}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        setupLiveSearch('#isemriSearch', '#isemriTable', [0, 1, 2]); 
+    });
+</script>
+
 {% endblock %}

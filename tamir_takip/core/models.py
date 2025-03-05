@@ -46,14 +46,17 @@ class IsEmri(models.Model):
     aciklama = models.TextField()
     durum = models.CharField(max_length=20, choices=DURUM_SECENEKLERI, default='beklemede')
     teknisyen = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
-    baslama_tarihi = models.DateTimeField(auto_now_add=True)
+    baslama_tarihi = models.DateTimeField(null=True, blank=True)
     bitis_tarihi = models.DateTimeField(null=True, blank=True)
 
     def __str__(self):
         return f"{self.arac} - {self.durum}"
 
     def save(self, *args, **kwargs):
-        
+        if not self.baslama_tarihi:
+            from django.utils.timezone import now
+            self.baslama_tarihi = now()
+            
         if self.durum == 'tamamlandi' and not self.bitis_tarihi:
             from django.utils.timezone import now
             self.bitis_tarihi = now()

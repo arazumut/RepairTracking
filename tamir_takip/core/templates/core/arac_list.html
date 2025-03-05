@@ -3,33 +3,69 @@
 {% block title %}Araçlar{% endblock %}
 
 {% block content %}
-<h2>Araç Listesi</h2>
-
-<form method="GET" class="mb-4">
-    <div class="input-group">
-        <input type="text" name="q" placeholder="Plaka ara..." value="{{ request.GET.q }}" class="form-control">
-        <button type="submit" class="btn btn-primary">Ara</button>
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="text-primary">Araç Listesi</h2>
+        <a href="{% url 'arac_ekle' %}" class="btn btn-success shadow">+ Yeni Araç</a>
     </div>
-</form>
 
-<table class="table table-bordered">
-    <thead>
-        <tr>
-            <th>Plaka</th>
-            <th>Marka</th>
-            <th>Model</th>
-            <th>Üretim Yılı</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for arac in araclar %}
-        <tr>
-            <td>{{ arac.plaka }}</td>
-            <td>{{ arac.marka }}</td>
-            <td>{{ arac.model }}</td>
-            <td>{{ arac.uretim_yili }}</td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
+    <div class="input-group mb-4">
+        <input type="text" id="aracSearch" class="form-control" placeholder="Plaka, marka veya model ara...">
+        <div class="input-group-append">
+            <span class="input-group-text"><i class="fas fa-search"></i></span>
+        </div>
+    </div>
+
+    <div class="card shadow-lg">
+        <div class="card-body">
+            <table class="table table-hover" id="aracTable">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Plaka</th>
+                        <th>Marka</th>
+                        <th>Model</th>
+                        <th>Üretim Yılı</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for arac in araclar %}
+                    <tr>
+                        <td>{{ arac.plaka }}</td>
+                        <td>{{ arac.marka }}</td>
+                        <td>{{ arac.model }}</td>
+                        <td>{{ arac.uretim_yili }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4" class="text-center text-muted">Araç bulunamadı.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<style>
+    .btn {
+        transition: all 0.3s ease;
+    }
+
+    .btn-success:hover {
+        background-color: #218838;
+    }
+
+    .table-hover tbody tr:hover {
+        background-color: #f8f9fa;
+    }
+</style>
+
+{% load static %}
+<script src="{% static 'js/live-search.js' %}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        setupLiveSearch('#aracSearch', '#aracTable', [0, 1, 2]); 
+    });
+</script>
+
 {% endblock %}

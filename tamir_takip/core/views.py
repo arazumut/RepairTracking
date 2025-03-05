@@ -20,7 +20,7 @@
 from django.shortcuts import render
 from .models import Musteri
 from django.shortcuts import render, redirect
-from .forms import MusteriForm
+from .forms import MusteriForm, AracForm, IsEmriForm
 from .models import IsEmri
 from .models import Arac
 from django.contrib.auth.decorators import login_required
@@ -58,25 +58,18 @@ def tamir_durum(request, pk):
 
 
 def musteri_list(request):
-    query = request.GET.get("q", "")  
-    musteriler = Musteri.objects.filter(Q(ad__icontains=query))
-    return render(request, "core/musteri_list.html", {"musteriler": musteriler, "q": query})
+    musteriler = Musteri.objects.all()
+    return render(request, "core/musteri_list.html", {"musteriler": musteriler})
 
 
 def arac_list(request):
-    query = request.GET.get("q", "")  
-    araclar = Arac.objects.filter(Q(plaka__icontains=query))
-    return render(request, "core/arac_list.html", {"araclar": araclar, "q": query})
+    araclar = Arac.objects.all()
+    return render(request, "core/arac_list.html", {"araclar": araclar})
 
 
 def isemri_list(request):
-    durum = request.GET.get("durum", "")
     is_emirleri = IsEmri.objects.all()
-
-    if durum:
-        is_emirleri = is_emirleri.filter(durum=durum)
-
-    return render(request, "core/isemri_list.html", {"is_emirleri": is_emirleri, "durum": durum})
+    return render(request, "core/isemri_list.html", {"is_emirleri": is_emirleri})
 
 
 
@@ -167,6 +160,28 @@ class IsEmriViewSet(viewsets.ModelViewSet):
     queryset = IsEmri.objects.all()
     serializer_class = IsEmriSerializer
 
+
+def arac_ekle(request):
+    if request.method == "POST":
+        form = AracForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('arac_list')
+    else:
+        form = AracForm()
+    return render(request, 'core/arac_form.html', {'form': form})
+
+
+
+def isemri_ekle(request):
+    if request.method == "POST":
+        form = IsEmriForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('isemri_list')
+    else:
+        form = IsEmriForm()
+    return render(request, 'core/isemri_form.html', {'form': form})
 
 
 
