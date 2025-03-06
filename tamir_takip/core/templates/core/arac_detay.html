@@ -1,0 +1,98 @@
+{% extends 'core/base.html' %}
+
+{% block title %}{{ arac.plaka }} - Araç Detayı{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card shadow-lg">
+        <div class="card-header bg-primary text-white">
+            <div class="d-flex justify-content-between align-items-center">
+                <h4 class="mb-0">{{ arac.plaka }} - Araç Detayı</h4>
+                <a href="{% url 'arac_list' %}" class="btn btn-light btn-sm">
+                    <i class="fas fa-arrow-left"></i> Geri
+                </a>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5 class="border-bottom pb-2">Araç Bilgileri</h5>
+                    <table class="table table-sm">
+                        <tr>
+                            <th>Marka:</th>
+                            <td>{{ arac.marka }}</td>
+                        </tr>
+                        <tr>
+                            <th>Model:</th>
+                            <td>{{ arac.model }}</td>
+                        </tr>
+                        <tr>
+                            <th>Plaka:</th>
+                            <td>{{ arac.plaka }}</td>
+                        </tr>
+                        <tr>
+                            <th>Üretim Yılı:</th>
+                            <td>{{ arac.uretim_yili }}</td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="col-md-6">
+                    <h5 class="border-bottom pb-2">Müşteri Bilgileri</h5>
+                    <table class="table table-sm">
+                        <tr>
+                            <th>Ad:</th>
+                            <td>{{ arac.musteri.ad }}</td>
+                        </tr>
+                        <tr>
+                            <th>Telefon:</th>
+                            <td>
+                                <a href="tel:{{ arac.musteri.telefon }}" class="text-decoration-none">
+                                    {{ arac.musteri.telefon }}
+                                </a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Adres:</th>
+                            <td>{{ arac.musteri.adres }}</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+            <h5 class="mt-4 border-bottom pb-2">İş Emirleri Geçmişi</h5>
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Tarih</th>
+                            <th>Durum</th>
+                            <th>Açıklama</th>
+                            <th>Teknisyen</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for isemri in isemri_listesi %}
+                        <tr>
+                            <td>{{ isemri.baslama_tarihi|date:"d.m.Y H:i" }}</td>
+                            <td>
+                                <span class="badge bg-{{ isemri.durum|lower }}">
+                                    {{ isemri.get_durum_display }}
+                                </span>
+                            </td>
+                            <td>{{ isemri.aciklama }}</td>
+                            <td>{{ isemri.teknisyen|default:"-" }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="4" class="text-center">
+                                İş Emirleri bulunamadı.
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

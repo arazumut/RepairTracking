@@ -32,7 +32,11 @@
                 <tbody>
                     {% for arac in araclar %}
                     <tr>
-                        <td>{{ arac.plaka }}</td>
+                        <td>
+                            <a href="{% url 'arac_detay' arac.id %}" class="text-decoration-none">
+                                {{ arac.plaka }}
+                            </a>
+                        </td>
                         <td>{{ arac.marka }}</td>
                         <td>{{ arac.model }}</td>
                         <td>{{ arac.uretim_yili }}</td>

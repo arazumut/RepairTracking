@@ -219,6 +219,15 @@ def isemri_sil(request, pk):
         return redirect('isemri_list')
     return render(request, 'core/isemri_sil.html', {'isemri': isemri})
 
+def arac_detay(request, pk):
+    arac = get_object_or_404(Arac, pk=pk)
+    isemri_listesi = IsEmri.objects.filter(arac=arac).order_by('-baslama_tarihi')
+    context = {
+        'arac': arac,
+        'isemri_listesi': isemri_listesi
+    }
+    return render(request, 'core/arac_detay.html', context)
+
 
 
 

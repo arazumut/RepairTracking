@@ -5,7 +5,7 @@ from .views import (
     home, musteri_list, arac_list, isemri_list, musteri_ekle,
     musteri_guncelle, musteri_sil, musteri_portal, tamir_durum,
     MusteriViewSet, AracViewSet, IsEmriViewSet, register, arac_ekle, isemri_ekle,
-    arac_duzenle, arac_sil, isemri_duzenle, isemri_sil
+    arac_duzenle, arac_sil, isemri_duzenle, isemri_sil, arac_detay
 )
 
 
@@ -48,4 +48,6 @@ urlpatterns = [
     path('arac/<int:pk>/sil/', arac_sil, name='arac_sil'),
     path('isemri/<int:pk>/duzenle/', isemri_duzenle, name='isemri_duzenle'),
     path('isemri/<int:pk>/sil/', isemri_sil, name='isemri_sil'),
+
+    path('arac/<int:pk>/detay/', arac_detay, name='arac_detay'),
 ]
