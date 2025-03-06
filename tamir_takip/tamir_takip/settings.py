@@ -33,8 +33,13 @@ INSTALLED_APPS = [
     'core',
     'django_adminlte3',
     'rest_framework', 
+    'crispy_forms',
+    'crispy_bootstrap5',
     
 ]
+# Crispy Forms ayarlarını bu şekilde yapıyoruz. (hata verirse burayı değiştir)
+CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
+CRISPY_TEMPLATE_PACK = "bootstrap5"
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
