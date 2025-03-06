@@ -1,0 +1,25 @@
+{% extends 'core/base.html' %}
+
+{% block title %}İş Emri Sil{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card shadow-lg">
+        <div class="card-header bg-danger text-white">
+            <h4>İş Emri Silme Onayı</h4>
+        </div>
+        <div class="card-body">
+            <p>Bu iş emrini silmek istediğinizden emin misiniz?</p>
+            <p><strong>Araç:</strong> {{ isemri.arac }}</p>
+            <p><strong>Durum:</strong> {{ isemri.get_durum_display }}</p>
+            <p><strong>Açıklama:</strong> {{ isemri.aciklama }}</p>
+            
+            <form method="POST">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger">Evet, Sil</button>
+                <a href="{% url 'isemri_list' %}" class="btn btn-secondary">İptal</a>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %} 

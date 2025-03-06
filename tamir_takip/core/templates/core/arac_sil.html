@@ -1,0 +1,24 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Araç Sil{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card shadow-lg">
+        <div class="card-header bg-danger text-white">
+            <h4>Araç Silme Onayı</h4>
+        </div>
+        <div class="card-body">
+            <p>Bu aracı silmek istediğinizden emin misiniz?</p>
+            <p><strong>Araç:</strong> {{ arac.marka }} {{ arac.model }} ({{ arac.plaka }})</p>
+            <p><strong>Müşteri:</strong> {{ arac.musteri.ad }}</p>
+            
+            <form method="POST">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger">Evet, Sil</button>
+                <a href="{% url 'arac_list' %}" class="btn btn-secondary">İptal</a>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %} 

@@ -183,6 +183,42 @@ def isemri_ekle(request):
         form = IsEmriForm()
     return render(request, 'core/isemri_form.html', {'form': form})
 
+def arac_duzenle(request, pk):
+    arac = get_object_or_404(Arac, pk=pk)
+    if request.method == "POST":
+        form = AracForm(request.POST, instance=arac)
+        if form.is_valid():
+            form.save()
+            return redirect('arac_list')
+    else:
+        form = AracForm(instance=arac)
+    return render(request, 'core/arac_form.html', {'form': form})
+
+def arac_sil(request, pk):
+    arac = get_object_or_404(Arac, pk=pk)
+    if request.method == "POST":
+        arac.delete()
+        return redirect('arac_list')
+    return render(request, 'core/arac_sil.html', {'arac': arac})
+
+def isemri_duzenle(request, pk):
+    isemri = get_object_or_404(IsEmri, pk=pk)
+    if request.method == "POST":
+        form = IsEmriForm(request.POST, instance=isemri)
+        if form.is_valid():
+            form.save()
+            return redirect('isemri_list')
+    else:
+        form = IsEmriForm(instance=isemri)
+    return render(request, 'core/isemri_form.html', {'form': form})
+
+def isemri_sil(request, pk):
+    isemri = get_object_or_404(IsEmri, pk=pk)
+    if request.method == "POST":
+        isemri.delete()
+        return redirect('isemri_list')
+    return render(request, 'core/isemri_sil.html', {'isemri': isemri})
+
 
 
 

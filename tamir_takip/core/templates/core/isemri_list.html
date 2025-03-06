@@ -5,46 +5,102 @@
 {% block content %}
 <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center mb-3">
-        <h2 class="text-primary">İş Emirleri</h2>
+        <h2 class="text-primary">İş Emri Listesi</h2>
         <a href="{% url 'isemri_ekle' %}" class="btn btn-success shadow">+ Yeni İş Emri</a>
     </div>
 
     <div class="input-group mb-4">
-        <input type="text" id="isemriSearch" class="form-control" placeholder="Açıklama, durum veya teknisyen ara...">
+        <input type="text" id="isEmriSearch" class="form-control" placeholder="Araç veya durum ara...">
         <div class="input-group-append">
             <span class="input-group-text"><i class="fas fa-search"></i></span>
         </div>
     </div>
 
-    <div class="card shadow-lg">
+    <!-- Masaüstü Görünüm -->
+    <div class="card shadow-lg d-none d-lg-block">
         <div class="card-body">
-            <table class="table table-hover" id="isemriTable">
+            <table class="table table-hover" id="isEmriTable">
                 <thead class="table-dark">
                     <tr>
+                        <th>Araç</th>
                         <th>Açıklama</th>
                         <th>Durum</th>
                         <th>Teknisyen</th>
-                        <th>Başlangıç</th>
-                        <th>Bitiş</th>
+                        <th>Başlama Tarihi</th>
+                        <th>Bitiş Tarihi</th>
+                        <th>İşlemler</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for isemri in is_emirleri %}
                     <tr>
-                        <td>{{ isemri.aciklama }}</td>
+                        <td>{{ isemri.arac }}</td>
+                        <td>{{ isemri.aciklama|truncatechars:50 }}</td>
                         <td>{{ isemri.get_durum_display }}</td>
-                        <td>{{ isemri.teknisyen.username }}</td>
-                        <td>{{ isemri.baslama_tarihi }}</td>
-                        <td>{{ isemri.bitis_tarihi }}</td>
+                        <td>{{ isemri.teknisyen|default:"-" }}</td>
+                        <td>{{ isemri.baslama_tarihi|date:"d.m.Y H:i" }}</td>
+                        <td>{{ isemri.bitis_tarihi|date:"d.m.Y H:i"|default:"-" }}</td>
+                        <td>
+                            <a href="{% url 'isemri_duzenle' isemri.id %}" class="btn btn-sm btn-primary">
+                                <i class="fas fa-edit"></i> Düzenle
+                            </a>
+                            <a href="{% url 'isemri_sil' isemri.id %}" class="btn btn-sm btn-danger">
+                                <i class="fas fa-trash"></i> Sil
+                            </a>
+                        </td>
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="5" class="text-center text-muted">İş emri bulunamadı.</td>
+                        <td colspan="7" class="text-center text-muted">İş emri bulunamadı.</td>
                     </tr>
                     {% endfor %}
                 </tbody>
             </table>
         </div>
+    </div>
+
+    <!-- Mobil Görünüm -->
+    <div class="d-lg-none">
+        {% for isemri in is_emirleri %}
+        <div class="card shadow-sm mb-3">
+            <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">{{ isemri.arac }}</h5>
+                <span class="badge bg-light text-dark">{{ isemri.get_durum_display }}</span>
+            </div>
+            <div class="card-body">
+                <div class="mb-2">
+                    <small class="text-muted">Açıklama:</small>
+                    <p class="mb-2">{{ isemri.aciklama }}</p>
+                </div>
+                <div class="mb-2">
+                    <small class="text-muted">Teknisyen:</small>
+                    <p class="mb-2">{{ isemri.teknisyen|default:"Atanmadı" }}</p>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-6">
+                        <small class="text-muted">Başlama:</small>
+                        <p class="mb-0">{{ isemri.baslama_tarihi|date:"d.m.Y H:i" }}</p>
+                    </div>
+                    <div class="col-6">
+                        <small class="text-muted">Bitiş:</small>
+                        <p class="mb-0">{{ isemri.bitis_tarihi|date:"d.m.Y H:i"|default:"-" }}</p>
+                    </div>
+                </div>
+                <div class="d-flex justify-content-end mt-3">
+                    <a href="{% url 'isemri_duzenle' isemri.id %}" class="btn btn-sm btn-primary me-2">
+                        <i class="fas fa-edit"></i> Düzenle
+                    </a>
+                    <a href="{% url 'isemri_sil' isemri.id %}" class="btn btn-sm btn-danger">
+                        <i class="fas fa-trash"></i> Sil
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="alert alert-info text-center">
+            İş emri bulunamadı.
+        </div>
+        {% endfor %}
     </div>
 </div>
 
@@ -52,21 +108,68 @@
     .btn {
         transition: all 0.3s ease;
     }
-
-    .btn-success:hover {
-        background-color: #218838;
+    .btn:hover {
+        transform: translateY(-1px);
     }
-
-    .table-hover tbody tr:hover {
-        background-color: #f8f9fa;
+    
+    
+    @media (max-width: 991.98px) {
+        .container {
+            padding-left: 10px;
+            padding-right: 10px;
+        }
+        
+        .card-header h5 {
+            font-size: 1rem;
+        }
+        
+        .btn-sm {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.875rem;
+        }
+        
+        .input-group {
+            margin-bottom: 1rem !important;
+        }
+        
+        .badge {
+            font-size: 0.75rem;
+        }
+    }
+    
+    
+    .card {
+        transition: transform 0.2s ease;
+    }
+    
+    .card:hover {
+        transform: translateY(-2px);
+    }
+    
+    
+    .shadow-hover:hover {
+        box-shadow: 0 .5rem 1rem rgba(0,0,0,.15)!important;
     }
 </style>
 
-{% load static %}
-<script src="{% static 'js/live-search.js' %}"></script>
 <script>
+
     document.addEventListener('DOMContentLoaded', function() {
-        setupLiveSearch('#isemriSearch', '#isemriTable', [0, 1, 2]); 
+        const searchInput = document.getElementById('isEmriSearch');
+        const cards = document.querySelectorAll('.card');
+        
+        searchInput.addEventListener('input', function(e) {
+            const searchText = e.target.value.toLowerCase();
+            
+            cards.forEach(card => {
+                const cardText = card.textContent.toLowerCase();
+                if (cardText.includes(searchText)) {
+                    card.style.display = '';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        });
     });
 </script>
 
