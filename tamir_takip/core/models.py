@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.utils import timezone
 
 # Author: K. Umut Araz
 # Date: 02.03.2025
@@ -42,22 +43,36 @@ class IsEmri(models.Model):
         ('tamamlandi', 'Tamamlandı'),
     ]
 
-    arac = models.ForeignKey(Arac, on_delete=models.CASCADE)
+    arac = models.ForeignKey(Arac, on_delete=models.CASCADE, related_name='is_emirleri')
     aciklama = models.TextField()
     durum = models.CharField(max_length=20, choices=DURUM_SECENEKLERI, default='beklemede')
     teknisyen = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
-    baslama_tarihi = models.DateTimeField(null=True, blank=True)
-    bitis_tarihi = models.DateTimeField(null=True, blank=True)
+    baslama_tarihi = models.DateTimeField(
+        verbose_name="Başlama Tarihi",
+        default=timezone.now
+    )
+    bitis_tarihi = models.DateTimeField(null=True, blank=True, verbose_name="Bitiş Tarihi")
+    
+    yapilan_islemler = models.TextField(blank=True, verbose_name="Yapılan İşlemler")
+    kullanilan_parcalar = models.TextField(blank=True, verbose_name="Kullanılan Parçalar")
+    toplam_maliyet = models.DecimalField(max_digits=10, decimal_places=2, default=0, verbose_name="Toplam Maliyet")
+    kilometre = models.IntegerField(null=True, blank=True, verbose_name="Kilometre")
+    notlar = models.TextField(blank=True, verbose_name="Notlar")
+
+    class Meta:
+        ordering = ['-baslama_tarihi']
+        verbose_name = "İş Emri"
+        verbose_name_plural = "İş Emirleri"
 
     def __str__(self):
-        return f"{self.arac} - {self.durum}"
+        return f"{self.arac.plaka} - {self.get_durum_display()} - {self.baslama_tarihi.strftime('%d.%m.%Y')}"
 
     def save(self, *args, **kwargs):
-        if not self.baslama_tarihi:
-            from django.utils.timezone import now
-            self.baslama_tarihi = now()
-            
+        if not self.pk and not self.baslama_tarihi:
+            from django.utils import timezone
+            self.baslama_tarihi = timezone.now()
+        
         if self.durum == 'tamamlandi' and not self.bitis_tarihi:
-            from django.utils.timezone import now
-            self.bitis_tarihi = now()
+            from django.utils import timezone
+            self.bitis_tarihi = timezone.now()
         super().save(*args, **kwargs)

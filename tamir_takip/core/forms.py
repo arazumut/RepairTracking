@@ -36,10 +36,16 @@ class AracForm(forms.ModelForm):
 class IsEmriForm(forms.ModelForm):
     class Meta:
         model = IsEmri
-        fields = ['arac', 'aciklama', 'durum', 'teknisyen', 'baslama_tarihi', 'bitis_tarihi']
+        fields = ['arac', 'aciklama', 'durum', 'teknisyen', 'yapilan_islemler', 
+                 'kullanilan_parcalar', 'toplam_maliyet', 'kilometre', 'notlar', 
+                 'baslama_tarihi', 'bitis_tarihi']
         widgets = {
             'baslama_tarihi': forms.DateTimeInput(attrs={'type': 'datetime-local'}),
             'bitis_tarihi': forms.DateTimeInput(attrs={'type': 'datetime-local'}),
+            'aciklama': forms.Textarea(attrs={'rows': 3}),
+            'yapilan_islemler': forms.Textarea(attrs={'rows': 3}),
+            'kullanilan_parcalar': forms.Textarea(attrs={'rows': 3}),
+            'notlar': forms.Textarea(attrs={'rows': 3}),
         }
 
     def __init__(self, *args, **kwargs):

@@ -1,0 +1,121 @@
+{% extends 'core/base.html' %}
+
+{% block title %}{{ arac.plaka }} - Araç Detayı{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card shadow-lg mb-4">
+    </div>
+
+    <div class="card shadow-lg">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">Servis Geçmişi</h5>
+        </div>
+        <div class="card-body">
+            <div class="timeline">
+                {% for isemri in isemri_listesi %}
+                <div class="timeline-item">
+                    <div class="timeline-marker bg-{{ isemri.durum }}"></div>
+                    <div class="timeline-content">
+                        <div class="card mb-3">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <span>{{ isemri.baslama_tarihi|date:"d.m.Y H:i" }}</span>
+                                <span class="badge bg-{{ isemri.durum }}">{{ isemri.get_durum_display }}</span>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <h6>Geliş Nedeni:</h6>
+                                        <p>{{ isemri.aciklama }}</p>
+                                        
+                                        {% if isemri.yapilan_islemler %}
+                                        <h6>Yapılan İşlemler:</h6>
+                                        <p>{{ isemri.yapilan_islemler }}</p>
+                                        {% endif %}
+                                        
+                                        {% if isemri.kullanilan_parcalar %}
+                                        <h6>Kullanılan Parçalar:</h6>
+                                        <p>{{ isemri.kullanilan_parcalar }}</p>
+                                        {% endif %}
+                                    </div>
+                                    <div class="col-md-6">
+                                        <table class="table table-sm">
+                                            <tr>
+                                                <th>Teknisyen:</th>
+                                                <td>{{ isemri.teknisyen|default:"-" }}</td>
+                                            </tr>
+                                            <tr>
+                                                <th>Kilometre:</th>
+                                                <td>{{ isemri.kilometre|default:"-" }} km</td>
+                                            </tr>
+                                            <tr>
+                                                <th>Maliyet:</th>
+                                                <td>{{ isemri.toplam_maliyet }} TL</td>
+                                            </tr>
+                                            {% if isemri.bitis_tarihi %}
+                                            <tr>
+                                                <th>Bitiş Tarihi:</th>
+                                                <td>{{ isemri.bitis_tarihi|date:"d.m.Y H:i" }}</td>
+                                            </tr>
+                                            {% endif %}
+                                        </table>
+                                        
+                                        {% if isemri.notlar %}
+                                        <h6>Notlar:</h6>
+                                        <p>{{ isemri.notlar }}</p>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="text-center text-muted">
+                    Bu araca ait servis geçmişi bulunmamaktadır.
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .timeline {
+        position: relative;
+        padding: 20px 0;
+    }
+    
+    .timeline-item {
+        position: relative;
+        padding-left: 40px;
+        margin-bottom: 30px;
+    }
+    
+    .timeline-marker {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 15px;
+        height: 15px;
+        border-radius: 50%;
+        border: 2px solid #fff;
+        box-shadow: 0 0 0 3px #007bff;
+    }
+    
+    .timeline-item::before {
+        content: '';
+        position: absolute;
+        left: 7px;
+        top: 15px;
+        height: 100%;
+        width: 2px;
+        background: #e9ecef;
+    }
+    
+    .bg-beklemede { background-color: #ffc107; }
+    .bg-inceleniyor { background-color: #17a2b8; }
+    .bg-tamirde { background-color: #007bff; }
+    .bg-tamamlandi { background-color: #28a745; }
+</style>
+{% endblock %}

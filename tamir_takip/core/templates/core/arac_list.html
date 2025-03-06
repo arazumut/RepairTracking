@@ -10,38 +10,62 @@
     </div>
 
     <div class="input-group mb-4">
-        <input type="text" id="aracSearch" class="form-control" placeholder="Plaka, marka veya model ara...">
+        <input type="text" id="aracSearch" class="form-control" placeholder="Plaka, marka, model veya müşteri ara...">
         <div class="input-group-append">
             <span class="input-group-text"><i class="fas fa-search"></i></span>
         </div>
     </div>
 
-    <div class="card shadow-lg">
+    <div class="card shadow-lg d-none d-lg-block">
         <div class="card-body">
             <table class="table table-hover" id="aracTable">
                 <thead class="table-dark">
                     <tr>
                         <th>Plaka</th>
-                        <th>Marka</th>
-                        <th>Model</th>
-                        <th>Üretim Yılı</th>
-                        <th>Müşteri</th>
+                        <th>Marka/Model</th>
+                        <th>Müşteri Adı</th>
+                        <th>Müşteri Tel</th>
+                        <th>Son İşlem</th>
                         <th>İşlemler</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for arac in araclar %}
                     <tr>
-                        <td>{{ arac.plaka }}</td>
-                        <td>{{ arac.marka }}</td>
-                        <td>{{ arac.model }}</td>
-                        <td>{{ arac.uretim_yili }}</td>
+                        <td>
+                            <a href="{% url 'arac_detay' arac.id %}" class="text-decoration-none">
+                                {{ arac.plaka }}
+                            </a>
+                        </td>
+                        <td>{{ arac.marka }} {{ arac.model }}</td>
                         <td>{{ arac.musteri.ad }}</td>
                         <td>
-                            <a href="{% url 'arac_duzenle' arac.id %}" class="btn btn-sm btn-primary">
+                            <a href="tel:{{ arac.musteri.telefon }}" class="text-decoration-none">
+                                {{ arac.musteri.telefon }}
+                            </a>
+                        </td>
+                        <td>
+                            {% with son_isemri=arac.is_emirleri.first %}
+                            {% if son_isemri %}
+                                <span class="badge bg-{{ son_isemri.durum }}">
+                                    {{ son_isemri.get_durum_display }}
+                                </span>
+                                <small class="text-muted d-block">
+                                    {{ son_isemri.baslama_tarihi|date:"d.m.Y" }}
+                                </small>
+                            {% else %}
+                                <span class="text-muted">-</span>
+                            {% endif %}
+                            {% endwith %}
+                        </td>
+                        <td>
+                            <a href="{% url 'arac_detay' arac.id %}" class="btn btn-info btn-sm">
+                                <i class="fas fa-eye"></i> Detay
+                            </a>
+                            <a href="{% url 'arac_duzenle' arac.id %}" class="btn btn-warning btn-sm">
                                 <i class="fas fa-edit"></i> Düzenle
                             </a>
-                            <a href="{% url 'arac_sil' arac.id %}" class="btn btn-sm btn-danger">
+                            <a href="{% url 'arac_sil' arac.id %}" class="btn btn-danger btn-sm">
                                 <i class="fas fa-trash"></i> Sil
                             </a>
                         </td>
@@ -55,28 +79,133 @@
             </table>
         </div>
     </div>
+        
+    <div class="d-lg-none">
+        {% for arac in araclar %}
+        <div class="card shadow-sm mb-3">
+            <div class="card-header bg-primary text-white">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <a href="{% url 'arac_detay' arac.id %}" class="text-white text-decoration-none">
+                            {{ arac.plaka }}
+                        </a>
+                    </h5>
+                    {% with son_isemri=arac.is_emirleri.first %}
+                    {% if son_isemri %}
+                        <span class="badge bg-{{ son_isemri.durum }}">{{ son_isemri.get_durum_display }}</span>
+                    {% endif %}
+                    {% endwith %}
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="mb-2">
+                    <small class="text-muted">Araç:</small>
+                    <p class="mb-2">{{ arac.marka }} {{ arac.model }} ({{ arac.uretim_yili }})</p>
+                </div>
+                <div class="mb-2">
+                    <small class="text-muted">Müşteri:</small>
+                    <p class="mb-2">{{ arac.musteri.ad }}</p>
+                </div>
+                <div class="mb-3">
+                    <small class="text-muted">İletişim:</small>
+                    <p class="mb-0">
+                        <a href="tel:{{ arac.musteri.telefon }}" class="text-decoration-none">
+                            <i class="fas fa-phone"></i> {{ arac.musteri.telefon }}
+                        </a>
+                    </p>
+                </div>
+                <div class="d-flex justify-content-end gap-2">
+                    <a href="{% url 'arac_detay' arac.id %}" class="btn btn-info btn-sm">
+                        <i class="fas fa-eye"></i> Detay
+                    </a>
+                    <a href="{% url 'arac_duzenle' arac.id %}" class="btn btn-warning btn-sm">
+                        <i class="fas fa-edit"></i> Düzenle
+                    </a>
+                    <a href="{% url 'arac_sil' arac.id %}" class="btn btn-danger btn-sm">
+                        <i class="fas fa-trash"></i> Sil
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="alert alert-info text-center">
+            Araç bulunamadı.
+        </div>
+        {% endfor %}
+    </div>
 </div>
 
 <style>
     .btn {
         transition: all 0.3s ease;
     }
-
-    .btn-success:hover {
-        background-color: #218838;
+    
+    @media (max-width: 991.98px) {
+        .container {
+            padding-left: 10px;
+            padding-right: 10px;
+        }
+        
+        .card-header h5 {
+            font-size: 1.1rem;
+        }
+        
+        .btn-sm {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.875rem;
+        }
+        
+        .input-group {
+            margin-bottom: 1rem !important;
+        }
     }
-
-    .table-hover tbody tr:hover {
-        background-color: #f8f9fa;
+    
+    .bg-beklemede { background-color: #ffc107; }
+    .bg-inceleniyor { background-color: #17a2b8; }
+    .bg-tamirde { background-color: #007bff; }
+    .bg-tamamlandi { background-color: #28a745; }
+    
+    .card {
+        transition: transform 0.2s ease;
+    }
+    
+    .card:hover {
+        transform: translateY(-2px);
+    }
+    
+    .btn:hover {
+        transform: translateY(-1px);
     }
 </style>
 
-{% load static %}
-<script src="{% static 'js/live-search.js' %}"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        setupLiveSearch('#aracSearch', '#aracTable', [0, 1, 2]); 
+        const searchInput = document.getElementById('aracSearch');
+        const cards = document.querySelectorAll('.d-lg-none .card');
+        const tableRows = document.querySelectorAll('#aracTable tbody tr');
+        
+        searchInput.addEventListener('input', function(e) {
+            const searchText = e.target.value.toLowerCase();
+            
+            
+            cards.forEach(card => {
+                const cardText = card.textContent.toLowerCase();
+                if (cardText.includes(searchText)) {
+                    card.style.display = '';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+            
+            tableRows.forEach(row => {
+                const rowText = row.textContent.toLowerCase();
+                if (rowText.includes(searchText)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        });
     });
 </script>
-
 {% endblock %}

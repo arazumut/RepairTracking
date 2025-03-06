@@ -16,7 +16,6 @@
         </div>
     </div>
 
-    <!-- Masaüstü Görünüm -->
     <div class="card shadow-lg d-none d-lg-block">
         <div class="card-body">
             <table class="table table-hover" id="musteriTable">
@@ -35,6 +34,9 @@
                             <td>{{ musteri.telefon }}</td>
                             <td>{{ musteri.adres|truncatechars:50 }}</td>
                             <td class="text-center">
+                                <a href="{% url 'musteri_detay' musteri.id %}" class="btn btn-info btn-sm">
+                                    <i class="fas fa-eye"></i> Detay
+                                </a>
                                 <a href="{% url 'musteri_guncelle' musteri.id %}" class="btn btn-warning btn-sm shadow-sm">
                                     <i class="fas fa-edit"></i> Düzenle
                                 </a>
@@ -53,7 +55,6 @@
         </div>
     </div>
 
-    <!-- Mobil Görünüm -->
     <div class="d-lg-none">
         {% for musteri in musteriler %}
         <div class="card shadow-sm mb-3">
@@ -73,8 +74,11 @@
                     <small class="text-muted">Adres:</small>
                     <p class="mb-0">{{ musteri.adres }}</p>
                 </div>
-                <div class="d-flex justify-content-end mt-3">
-                    <a href="{% url 'musteri_guncelle' musteri.id %}" class="btn btn-warning btn-sm me-2">
+                <div class="d-flex justify-content-end gap-2">
+                    <a href="{% url 'musteri_detay' musteri.id %}" class="btn btn-info btn-sm">
+                        <i class="fas fa-eye"></i> Detay
+                    </a>
+                    <a href="{% url 'musteri_guncelle' musteri.id %}" class="btn btn-warning btn-sm">
                         <i class="fas fa-edit"></i> Düzenle
                     </a>
                     <a href="{% url 'musteri_sil' musteri.id %}" class="btn btn-danger btn-sm">
@@ -96,7 +100,6 @@
         transition: all 0.3s ease;
     }
     
-    /* Mobil stil ayarları */
     @media (max-width: 991.98px) {
         .container {
             padding-left: 10px;
@@ -145,7 +148,6 @@
 </style>
 
 <script>
-    // mobil kartlar  iş emri list in aynısı amntık aynı unutma!
     document.addEventListener('DOMContentLoaded', function() {
         const searchInput = document.getElementById('musteriSearch');
         const cards = document.querySelectorAll('.card');
@@ -154,7 +156,7 @@
         searchInput.addEventListener('input', function(e) {
             const searchText = e.target.value.toLowerCase();
             
-            // Mobil kartlar için arama
+        
             cards.forEach(card => {
                 const cardText = card.textContent.toLowerCase();
                 if (cardText.includes(searchText)) {
