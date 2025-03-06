@@ -14,6 +14,19 @@ Tamir Takip Sistemi, tamir işlemlerini izlemek ve yönetmek için geliştirilmi
 - Tamir durumlarını izleme
 - Kullanıcı yönetimi ve yetkilendirme
 - API desteği ile dış sistemlerle entegrasyon
+- Responsive tasarım ile mobil uyumluluk
+- Gerçek zamanlı arama filtreleme
+- Teknisyen atama ve takibi
+- Başlama ve bitiş tarihlerini kaydetme
+- Otomatik iş emri oluşturma
+- Detaylı raporlama ve durum takibi
+- Müşteri bazlı araç geçmişi
+- Tamir durumu güncelleme (beklemede, inceleniyor, tamirde, tamamlandı)
+- Güvenli oturum yönetimi
+- Kullanıcı dostu arayüz
+- Dinamik form validasyonları
+- Crispy forms entegrasyonu ile gelişmiş form yönetimi
+- REST API endpoints ile veri erişimi
 
 ## Kurulum
 Projenin çalıştırılabilmesi için aşağıdaki adımları izleyin:
