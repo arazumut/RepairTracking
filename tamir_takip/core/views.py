@@ -34,6 +34,7 @@ from django.db.models import Q
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import TemplateView
+from django import forms
 
 class HomeView(LoginRequiredMixin, TemplateView):
     template_name = "home.html"
@@ -227,6 +228,28 @@ def arac_detay(request, pk):
         'isemri_listesi': isemri_listesi
     }
     return render(request, 'core/arac_detay.html', context)
+
+def musteri_detay(request, pk):
+    musteri = get_object_or_404(Musteri, pk=pk)
+    araclar = Arac.objects.filter(musteri=musteri).prefetch_related('is_emirleri')
+    
+    if request.method == "POST":
+        form = AracForm(request.POST)
+        if form.is_valid():
+            arac = form.save(commit=False)
+            arac.musteri = musteri
+            arac.save()
+            return redirect('musteri_detay', pk=musteri.pk)
+    else:
+        form = AracForm(initial={'musteri': musteri})
+        form.fields['musteri'].widget = forms.HiddenInput()
+    
+    context = {
+        'musteri': musteri,
+        'araclar': araclar,
+        'form': form
+    }
+    return render(request, 'core/musteri_detay.html', context)
 
 
 

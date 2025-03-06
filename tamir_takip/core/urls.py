@@ -1,5 +1,6 @@
 from django.urls import path, include
 from django.contrib.auth import views as auth_views
+from . import views
 from rest_framework.routers import DefaultRouter
 from .views import (
     home, musteri_list, arac_list, isemri_list, musteri_ekle,
@@ -30,6 +31,7 @@ urlpatterns = [
 
 
     path('araclar/', arac_list, name='arac_list'),
+    
     path('arac-ekle/', arac_ekle, name='arac_ekle'),
     path('isemirleri/', isemri_list, name='isemri_list'),
     path('isemri-ekle/', isemri_ekle, name='isemri_ekle'),  
@@ -40,6 +42,8 @@ urlpatterns = [
 
     
     path('register/', register, name='register'),
+
+    path('musteri/<int:pk>/detay/', views.musteri_detay, name='musteri_detay'),
 
 
     path('api/', include(router.urls)),

@@ -1,0 +1,233 @@
+{% extends 'core/base.html' %}
+
+{% block title %}{{ musteri.ad }} - Müşteri Detayı{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card shadow-lg mb-4">
+        <div class="card-header bg-primary text-white">
+            <div class="d-flex justify-content-between align-items-center">
+                <h4 class="mb-0">Müşteri Bilgileri</h4>
+                <a href="{% url 'musteri_list' %}" class="btn btn-light btn-sm">
+                    <i class="fas fa-arrow-left"></i> Geri
+                </a>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <table class="table table-sm">
+                        <tr>
+                            <th>Ad:</th>
+                            <td>{{ musteri.ad }}</td>
+                        </tr>
+                        <tr>
+                            <th>Telefon:</th>
+                            <td>
+                                <a href="tel:{{ musteri.telefon }}" class="text-decoration-none">
+                                    {{ musteri.telefon }}
+                                </a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Adres:</th>
+                            <td>{{ musteri.adres }}</td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="col-md-6 text-end">
+                    <a href="{% url 'musteri_guncelle' musteri.id %}" class="btn btn-warning">
+                        <i class="fas fa-edit"></i> Bilgileri Düzenle
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow-lg">
+        <div class="card-header bg-success text-white">
+            <h4 class="mb-0">Araçları</h4>
+        </div>
+        <div class="card-body">
+            <div class="accordion mb-4" id="yeniAracAccordion">
+                <div class="accordion-item">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#yeniAracForm">
+                            <i class="fas fa-plus-circle me-2"></i> Yeni Araç Ekle
+                        </button>
+                    </h2>
+                    <div id="yeniAracForm" class="accordion-collapse collapse" data-bs-parent="#yeniAracAccordion">
+                        <div class="accordion-body">
+                            <form method="POST" class="row g-3">
+                                {% csrf_token %}
+                                {{ form.musteri }}
+                                
+                                <div class="col-md-6">
+                                    <label for="{{ form.marka.id_for_label }}" class="form-label">Marka</label>
+                                    {{ form.marka }}
+                                </div>
+                                
+                                <div class="col-md-6">
+                                    <label for="{{ form.model.id_for_label }}" class="form-label">Model</label>
+                                    {{ form.model }}
+                                </div>
+                                
+                                <div class="col-md-6">
+                                    <label for="{{ form.plaka.id_for_label }}" class="form-label">Plaka</label>
+                                    {{ form.plaka }}
+                                </div>
+                                
+                                <div class="col-md-6">
+                                    <label for="{{ form.uretim_yili.id_for_label }}" class="form-label">Üretim Yılı</label>
+                                    {{ form.uretim_yili }}
+                                </div>
+                                
+                                <div class="col-12 text-end">
+                                    <button type="submit" class="btn btn-success">
+                                        <i class="fas fa-save"></i> Aracı Kaydet
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="table-responsive d-none d-lg-block">
+                <table class="table table-hover">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Plaka</th>
+                            <th>Marka/Model</th>
+                            <th>Üretim Yılı</th>
+                            <th>Son İşlem</th>
+                            <th>İşlemler</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for arac in araclar %}
+                        <tr>
+                            <td>{{ arac.plaka }}</td>
+                            <td>{{ arac.marka }} {{ arac.model }}</td>
+                            <td>{{ arac.uretim_yili }}</td>
+                            <td>
+                                {% with son_isemri=arac.is_emirleri.first %}
+                                {% if son_isemri %}
+                                    <span class="badge bg-{{ son_isemri.durum }}">
+                                        {{ son_isemri.get_durum_display }}
+                                    </span>
+                                    <small class="text-muted d-block">
+                                        {{ son_isemri.baslama_tarihi|date:"d.m.Y" }}
+                                    </small>
+                                {% else %}
+                                    <span class="text-muted">-</span>
+                                {% endif %}
+                                {% endwith %}
+                            </td>
+                            <td>
+                                <a href="{% url 'arac_detay' arac.id %}" class="btn btn-info btn-sm">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <a href="{% url 'arac_duzenle' arac.id %}" class="btn btn-warning btn-sm">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <a href="{% url 'arac_sil' arac.id %}" class="btn btn-danger btn-sm">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="5" class="text-center text-muted">
+                                Müşteriye ait araç bulunmamaktadır.
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            
+            <div class="d-lg-none">
+                {% for arac in araclar %}
+                <div class="card mb-3">
+                    <div class="card-header bg-primary text-white">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">{{ arac.plaka }}</h5>
+                            {% with son_isemri=arac.is_emirleri.first %}
+                            {% if son_isemri %}
+                                <span class="badge bg-{{ son_isemri.durum }}">
+                                    {{ son_isemri.get_durum_display }}
+                                </span>
+                            {% endif %}
+                            {% endwith %}
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-2">
+                            <small class="text-muted">Araç:</small>
+                            <p class="mb-2">{{ arac.marka }} {{ arac.model }} ({{ arac.uretim_yili }})</p>
+                        </div>
+                        <div class="d-flex justify-content-end gap-2">
+                            <a href="{% url 'arac_detay' arac.id %}" class="btn btn-info btn-sm">
+                                <i class="fas fa-eye"></i> Detay
+                            </a>
+                            <a href="{% url 'arac_duzenle' arac.id %}" class="btn btn-warning btn-sm">
+                                <i class="fas fa-edit"></i> Düzenle
+                            </a>
+                            <a href="{% url 'arac_sil' arac.id %}" class="btn btn-danger btn-sm">
+                                <i class="fas fa-trash"></i> Sil
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="alert alert-info text-center">
+                    Müşteriye ait araç bulunmamaktadır.
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .form-control {
+        border-radius: 0.25rem;
+    }
+    
+    @media (max-width: 991.98px) {
+        .container {
+            padding-left: 10px;
+            padding-right: 10px;
+        }
+        
+        .btn-sm {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.875rem;
+        }
+    }
+    
+    .bg-beklemede { background-color: #ffc107; }
+    .bg-inceleniyor { background-color: #17a2b8; }
+    .bg-tamirde { background-color: #007bff; }
+    .bg-tamamlandi { background-color: #28a745; }
+    
+    
+    .btn {
+        transition: all 0.3s ease;
+    }
+    
+    .btn:hover {
+        transform: translateY(-1px);
+    }
+    
+    .card {
+        transition: transform 0.2s ease;
+    }
+    
+    .card:hover {
+        transform: translateY(-2px);
+    }
+</style>
+{% endblock %}
