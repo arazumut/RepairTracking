@@ -4,17 +4,215 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kayıt Ol</title>
+    <title>Kayıt Ol - Tamir Takip Sistemi</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .register-container {
+            max-width: 500px;
+            margin: 50px auto;
+            padding: 30px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+        }
+        .form-label {
+            font-weight: 500;
+        }
+        .form-control {
+            padding: 12px;
+            border-radius: 5px;
+        }
+        .btn-register {
+            padding: 12px;
+            font-weight: 600;
+            border-radius: 5px;
+        }
+        .logo-container {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .logo-text {
+            font-size: 24px;
+            font-weight: 700;
+            color: #3f51b5;
+        }
+        .user-type-container {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #e0e0e0;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        .user-type-label {
+            margin-right: 15px;
+            cursor: pointer;
+            padding: 8px 15px;
+            border-radius: 5px;
+            transition: all 0.3s;
+        }
+        .user-type-label:hover {
+            background-color: #e9ecef;
+        }
+        input[type="radio"]:checked + label {
+            background-color: #3f51b5;
+            color: white;
+        }
+        .helptext {
+            font-size: 12px;
+            color: #6c757d;
+            margin-top: 5px;
+        }
+        .errorlist {
+            color: #dc3545;
+            padding-left: 20px;
+            font-size: 14px;
+        }
+    </style>
 </head>
 <body>
-    <div class="container mt-5">
-        <h2 class="text-center">Kayıt Ol</h2>
-        <form method="post">
-            {% csrf_token %}
-            {{ form.as_p }}
-            <button type="submit" class="btn btn-success w-100">Kayıt Ol</button>
-        </form>
+    <div class="container">
+        <div class="register-container">
+            <div class="logo-container">
+                <div class="logo-text">
+                    <i class="fas fa-tools me-2"></i>
+                    Tamir Takip Sistemi
+                </div>
+                <p class="text-muted">Hesap Oluştur</p>
+            </div>
+            
+            <form method="post" class="needs-validation" novalidate>
+                {% csrf_token %}
+                
+                {% if form.non_field_errors %}
+                <div class="alert alert-danger">
+                    {% for error in form.non_field_errors %}
+                    {{ error }}
+                    {% endfor %}
+                </div>
+                {% endif %}
+                
+                <div class="mb-3">
+                    <label for="{{ form.username.id_for_label }}" class="form-label">Kullanıcı Adı</label>
+                    {{ form.username }}
+                    {% if form.username.errors %}
+                    <div class="errorlist">
+                        {% for error in form.username.errors %}
+                        {{ error }}
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                    {% if form.username.help_text %}
+                    <div class="helptext">{{ form.username.help_text }}</div>
+                    {% endif %}
+                </div>
+                
+                <div class="mb-3">
+                    <label for="{{ form.email.id_for_label }}" class="form-label">E-posta Adresi</label>
+                    {{ form.email }}
+                    {% if form.email.errors %}
+                    <div class="errorlist">
+                        {% for error in form.email.errors %}
+                        {{ error }}
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <div class="mb-3">
+                    <label for="{{ form.password1.id_for_label }}" class="form-label">Şifre</label>
+                    {{ form.password1 }}
+                    {% if form.password1.errors %}
+                    <div class="errorlist">
+                        {% for error in form.password1.errors %}
+                        {{ error }}
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                    {% if form.password1.help_text %}
+                    <div class="helptext">{{ form.password1.help_text }}</div>
+                    {% endif %}
+                </div>
+                
+                <div class="mb-3">
+                    <label for="{{ form.password2.id_for_label }}" class="form-label">Şifre Tekrarı</label>
+                    {{ form.password2 }}
+                    {% if form.password2.errors %}
+                    <div class="errorlist">
+                        {% for error in form.password2.errors %}
+                        {{ error }}
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                    {% if form.password2.help_text %}
+                    <div class="helptext">{{ form.password2.help_text }}</div>
+                    {% endif %}
+                </div>
+                
+                <div class="user-type-container">
+                    <label class="form-label">Kullanıcı Tipi</label>
+                    <div class="d-flex justify-content-center mt-2">
+                        {% for radio in form.user_type %}
+                        <div class="form-check form-check-inline">
+                            {{ radio.tag }}
+                            <label class="user-type-label" for="{{ radio.id_for_label }}">
+                                {% if radio.choice_value == 'musteri' %}
+                                <i class="fas fa-user me-1"></i>
+                                {% else %}
+                                <i class="fas fa-tools me-1"></i>
+                                {% endif %}
+                                {{ radio.choice_label }}
+                            </label>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% if form.user_type.errors %}
+                    <div class="errorlist">
+                        {% for error in form.user_type.errors %}
+                        {{ error }}
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <div class="d-grid gap-2">
+                    <button type="submit" class="btn btn-primary btn-register">
+                        <i class="fas fa-user-plus me-2"></i>
+                        Kayıt Ol
+                    </button>
+                </div>
+                
+                <div class="text-center mt-3">
+                    <p>Zaten hesabınız var mı? <a href="{% url 'login' %}">Giriş Yap</a></p>
+                </div>
+            </form>
+        </div>
     </div>
+    
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Form validation
+        var forms = document.querySelectorAll('.needs-validation');
+        Array.prototype.slice.call(forms).forEach(function(form) {
+            form.addEventListener('submit', function(event) {
+                if (!form.checkValidity()) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+                form.classList.add('was-validated');
+            }, false);
+        });
+        
+        // Form fields enhancement
+        var inputs = document.querySelectorAll('input[type="text"], input[type="password"], input[type="email"]');
+        inputs.forEach(function(input) {
+            input.classList.add('form-control');
+        });
+    });
+    </script>
 </body>
 </html>

@@ -18,15 +18,15 @@
 
 
 from django.shortcuts import render
-from .models import Musteri
+from .models import Musteri, UserProfile
 from django.shortcuts import render, redirect
-from .forms import MusteriForm, AracForm, IsEmriForm
+from .forms import MusteriForm, AracForm, IsEmriForm, UserRegisterForm
 from .models import IsEmri
 from .models import Arac
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import render, redirect
 from django.contrib.auth.forms import UserCreationForm
-from django.contrib.auth import login
+from django.contrib.auth import login, logout, authenticate
 from rest_framework import viewsets
 from .models import Musteri, Arac, IsEmri
 from .serializers import MusteriSerializer, AracSerializer, IsEmriSerializer
@@ -35,26 +35,110 @@ from django.shortcuts import get_object_or_404
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import TemplateView
 from django import forms
+from django.contrib import messages
 
 class HomeView(LoginRequiredMixin, TemplateView):
-    template_name = "home.html"
+    template_name = "core/home.html"
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['musteri_sayisi'] = Musteri.objects.count()
+        context['arac_sayisi'] = Arac.objects.count()
+        context['isemri_sayisi'] = IsEmri.objects.count()
+        context['son_is_emirleri'] = IsEmri.objects.all().order_by('-baslama_tarihi')[:5]
+        return context
+
+
+def welcome(request):
+    return render(request, 'core/welcome.html')
 
 
 # telefondan çalıştıracakken veya başka ortamda LOGİN RQUIRED KALDIR!
 
 def home(request):
-    return render(request, 'core/home.html')
+    if not request.user.is_authenticated:
+        return render(request, 'core/welcome.html')
+    
+    # Giriş yapmış kullanıcılar için
+    if hasattr(request.user, 'profile') and request.user.profile.user_type == 'musteri':
+        return redirect('musteri_portal')
+    
+    # Tamirci kullanıcılar için dashboard
+    musteri_sayisi = Musteri.objects.count()
+    arac_sayisi = Arac.objects.count()
+    isemri_sayisi = IsEmri.objects.count()
+    
+    return render(request, 'core/home.html', {
+        'musteri_sayisi': musteri_sayisi,
+        'arac_sayisi': arac_sayisi,
+        'isemri_sayisi': isemri_sayisi
+    })
 
 
 
 def musteri_portal(request):
-    musteriler = Musteri.objects.filter(user=request.user)
-    return render(request, 'core/musteri_portal.html', {'musteriler': musteriler})
+    # Kullanıcıya bağlı müşteri kaydını bul
+    try:
+        musteri = Musteri.objects.get(user=request.user)
+        # Müşteriye ait araçları getir
+        araclar = Arac.objects.filter(musteri=musteri)
+        
+        # Araçlara ait iş emirlerini getir
+        is_emirleri = {}
+        for arac in araclar:
+            is_emirleri[arac.id] = IsEmri.objects.filter(arac=arac).order_by('-baslama_tarihi')
+        
+        context = {
+            'musteri': musteri,
+            'araclar': araclar,
+            'is_emirleri': is_emirleri,
+        }
+        
+        return render(request, 'core/musteri_portal.html', context)
+    except Musteri.DoesNotExist:
+        # Eğer kullanıcıya bağlı müşteri kaydı yoksa, yeni kayıt oluşturma formu göster
+        if request.method == "POST":
+            form = MusteriForm(request.POST)
+            if form.is_valid():
+                musteri = form.save(commit=False)
+                musteri.user = request.user
+                musteri.save()
+                messages.success(request, 'Müşteri bilgileriniz başarıyla kaydedildi.')
+                return redirect('musteri_portal')
+        else:
+            form = MusteriForm()
+        
+        return render(request, 'core/musteri_form.html', {
+            'form': form, 
+            'title': 'Müşteri Bilgilerinizi Tamamlayın',
+            'is_portal': True
+        })
 
 
+@login_required
 def tamir_durum(request, pk):
     is_emri = get_object_or_404(IsEmri, pk=pk)
-    return render(request, 'core/tamir_durum.html', {'is_emri': is_emri})
+    
+    # Kullanıcının kendi aracına ait iş emri olup olmadığını kontrol et
+    if hasattr(request.user, 'profile') and request.user.profile.user_type == 'musteri':
+        try:
+            musteri = Musteri.objects.get(user=request.user)
+            if is_emri.arac.musteri != musteri:
+                messages.error(request, 'Bu iş emrine erişim izniniz bulunmamaktadır.')
+                return redirect('musteri_portal')
+        except Musteri.DoesNotExist:
+            messages.error(request, 'Müşteri bilgileriniz bulunamadı.')
+            return redirect('musteri_portal')
+    
+    # İş emrine ait notları getir (eğer bir notlar modeli varsa)
+    # notlar = IsEmriNotu.objects.filter(is_emri=is_emri).order_by('-tarih')
+    
+    context = {
+        'is_emri': is_emri,
+        # 'notlar': notlar
+    }
+    
+    return render(request, 'core/tamir_durum.html', context)
 
 
 
@@ -137,13 +221,17 @@ def musteri_sil(request, pk):
 
 def register(request):
     if request.method == 'POST':
-        form = UserCreationForm(request.POST)
+        form = UserRegisterForm(request.POST)
         if form.is_valid():
             user = form.save()
-            login(request, user)  
-            return redirect('home')  
+            login(request, user)
+            
+            # Müşteri tipindeki kullanıcılar için müşteri portalına yönlendir
+            if user.profile.user_type == 'musteri':
+                return redirect('musteri_portal')
+            return redirect('home')
     else:
-        form = UserCreationForm()
+        form = UserRegisterForm()
     return render(request, 'core/register.html', {'form': form})
 
 
@@ -250,6 +338,78 @@ def musteri_detay(request, pk):
         'form': form
     }
     return render(request, 'core/musteri_detay.html', context)
+
+def logout_view(request):
+    logout(request)
+    messages.success(request, 'Başarıyla çıkış yaptınız.')
+    return redirect('welcome')
+
+def login_view(request):
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        user = authenticate(request, username=username, password=password)
+        
+        if user is not None:
+            login(request, user)
+            messages.success(request, 'Başarıyla giriş yaptınız.')
+            
+            # Kullanıcı tipine göre yönlendirme
+            try:
+                profile = UserProfile.objects.get(user=user)
+                if profile.user_type == 'musteri':
+                    return redirect('musteri_portal')
+                else:
+                    return redirect('home')
+            except UserProfile.DoesNotExist:
+                return redirect('home')
+        else:
+            messages.error(request, 'Kullanıcı adı veya şifre hatalı.')
+    
+    return render(request, 'core/login.html')
+
+@login_required
+def musteri_arac_ekle(request):
+    """Müşteri portalından araç ekleme view'i"""
+    if request.method == "POST":
+        try:
+            musteri = Musteri.objects.get(user=request.user)
+            
+    
+            marka = request.POST.get('marka')
+            model = request.POST.get('model')
+            plaka = request.POST.get('plaka')
+            uretim_yili = request.POST.get('uretim_yili')
+            sorun_aciklama = request.POST.get('sorun_aciklama')
+            
+            
+            arac = Arac.objects.create(
+                musteri=musteri,
+                marka=marka,
+                model=model,
+                plaka=plaka,
+                uretim_yili=uretim_yili
+            )
+            
+            # Eğer sorun açıklaması varsa iş emri oluştur
+            if sorun_aciklama:
+                IsEmri.objects.create(
+                    arac=arac,
+                    aciklama=sorun_aciklama,
+                    durum="beklemede"
+                )
+                messages.success(request, f'{marka} {model} aracınız ve ilgili iş emri başarıyla oluşturuldu.')
+            else:
+                messages.success(request, f'{marka} {model} aracınız başarıyla eklendi.')
+                
+            return redirect('musteri_portal')
+            
+        except Musteri.DoesNotExist:
+            messages.error(request, 'Müşteri bilgileriniz bulunamadı.')
+            return redirect('musteri_portal')
+    
+    # GET isteği için müşteri portalına yönlendir
+    return redirect('musteri_portal')
 
 
 

@@ -1,18 +1,213 @@
 {% extends 'core/base.html' %}
+{% load static %}
 
-{% block title %}Tamir Durumu{% endblock %}
+{% block title %}Tamir Durumu - {{ is_emri.arac.marka }} {{ is_emri.arac.model }}{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-    <h2 class="text-primary">Tamir Durumu</h2>
-    <div class="card">
-        <div class="card-body">
-            <h5 class="card-title">{{ is_emri.arac.marka }} {{ is_emri.arac.model }}</h5>
-            <p class="card-text"><strong>Durum:</strong> {{ is_emri.get_durum_display }}</p>
-            <p class="card-text"><strong>Açıklama:</strong> {{ is_emri.aciklama }}</p>
-            <p class="card-text"><strong>Başlangıç Tarihi:</strong> {{ is_emri.baslama_tarihi }}</p>
-            <p class="card-text"><strong>Bitiş Tarihi:</strong> {{ is_emri.bitis_tarihi }}</p>
+<div class="container-fluid py-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'musteri_portal' %}">Müşteri Portalı</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">İş Emri #{{ is_emri.id }}</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h4 class="mb-0"><i class="fas fa-clipboard-list me-2"></i>İş Emri Detayları</h4>
+                        <span class="badge {% if is_emri.durum == 'tamamlandi' %}bg-success{% elif is_emri.durum == 'devam_ediyor' %}bg-warning{% else %}bg-secondary{% endif %} fs-6">
+                            {% if is_emri.durum == 'beklemede' %}Beklemede{% elif is_emri.durum == 'devam_ediyor' %}Devam Ediyor{% elif is_emri.durum == 'tamamlandi' %}Tamamlandı{% endif %}
+                        </span>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <h5 class="border-bottom pb-2 mb-3">İş Emri Bilgileri</h5>
+                            <table class="table table-borderless">
+                                <tr>
+                                    <th width="40%">İş Emri No:</th>
+                                    <td><strong>#{{ is_emri.id }}</strong></td>
+                                </tr>
+                                <tr>
+                                    <th>Başlangıç Tarihi:</th>
+                                    <td>{{ is_emri.baslama_tarihi|date:"d.m.Y H:i" }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Bitiş Tarihi:</th>
+                                    <td>{% if is_emri.bitis_tarihi %}{{ is_emri.bitis_tarihi|date:"d.m.Y H:i" }}{% else %}<span class="text-muted">Henüz tamamlanmadı</span>{% endif %}</td>
+                                </tr>
+                                <tr>
+                                    <th>Durum:</th>
+                                    <td>
+                                        <span class="badge {% if is_emri.durum == 'tamamlandi' %}bg-success{% elif is_emri.durum == 'devam_ediyor' %}bg-warning{% else %}bg-secondary{% endif %}">
+                                            {% if is_emri.durum == 'beklemede' %}Beklemede{% elif is_emri.durum == 'devam_ediyor' %}Devam Ediyor{% elif is_emri.durum == 'tamamlandi' %}Tamamlandı{% endif %}
+                                        </span>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="col-md-6">
+                            <h5 class="border-bottom pb-2 mb-3">Araç Bilgileri</h5>
+                            <table class="table table-borderless">
+                                <tr>
+                                    <th width="40%">Araç:</th>
+                                    <td><strong>{{ is_emri.arac.marka }} {{ is_emri.arac.model }}</strong></td>
+                                </tr>
+                                <tr>
+                                    <th>Plaka:</th>
+                                    <td>{{ is_emri.arac.plaka }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Üretim Yılı:</th>
+                                    <td>{{ is_emri.arac.uretim_yili }}</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+
+                    <h5 class="border-bottom pb-2 mb-3">Sorun Açıklaması</h5>
+                    <div class="p-3 bg-light rounded mb-4">
+                        <p class="mb-0">{{ is_emri.aciklama }}</p>
+                    </div>
+
+                    {% if is_emri.yapilan_islemler %}
+                    <h5 class="border-bottom pb-2 mb-3">Yapılan İşlemler</h5>
+                    <div class="p-3 bg-light rounded mb-4">
+                        <p class="mb-0">{{ is_emri.yapilan_islemler }}</p>
+                    </div>
+                    {% endif %}
+
+                    {% if is_emri.durum == 'tamamlandi' %}
+                    <div class="alert alert-success">
+                        <i class="fas fa-check-circle me-2"></i>
+                        <strong>Tamir işlemi tamamlandı!</strong> Aracınızı teslim alabilirsiniz.
+                    </div>
+                    {% elif is_emri.durum == 'devam_ediyor' %}
+                    <div class="alert alert-warning">
+                        <i class="fas fa-tools me-2"></i>
+                        <strong>Tamir işlemi devam ediyor.</strong> Aracınız üzerinde çalışılıyor.
+                    </div>
+                    {% else %}
+                    <div class="alert alert-secondary">
+                        <i class="fas fa-clock me-2"></i>
+                        <strong>Tamir işlemi henüz başlamadı.</strong> Aracınız sırada bekliyor.
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>Durum Bilgisi</h5>
+                </div>
+                <div class="card-body">
+                    <div class="timeline">
+                        <div class="timeline-item">
+                            <div class="timeline-marker {% if is_emri.durum %}bg-success{% else %}bg-secondary{% endif %}"></div>
+                            <div class="timeline-content">
+                                <h6 class="mb-0">İş Emri Oluşturuldu</h6>
+                                <small class="text-muted">{{ is_emri.baslama_tarihi|date:"d.m.Y H:i" }}</small>
+                                <p class="small mt-2">Aracınız için iş emri oluşturuldu ve sıraya alındı.</p>
+                            </div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-marker {% if is_emri.durum == 'devam_ediyor' or is_emri.durum == 'tamamlandi' %}bg-success{% else %}bg-secondary{% endif %}"></div>
+                            <div class="timeline-content">
+                                <h6 class="mb-0">Tamir İşlemi Başladı</h6>
+                                {% if is_emri.durum == 'devam_ediyor' or is_emri.durum == 'tamamlandi' %}
+                                <small class="text-muted">{{ is_emri.baslama_tarihi|date:"d.m.Y H:i" }}</small>
+                                <p class="small mt-2">Aracınız üzerinde çalışmaya başlandı.</p>
+                                {% else %}
+                                <small class="text-muted">Henüz başlamadı</small>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-marker {% if is_emri.durum == 'tamamlandi' %}bg-success{% else %}bg-secondary{% endif %}"></div>
+                            <div class="timeline-content">
+                                <h6 class="mb-0">Tamir İşlemi Tamamlandı</h6>
+                                {% if is_emri.durum == 'tamamlandi' %}
+                                <small class="text-muted">{{ is_emri.bitis_tarihi|date:"d.m.Y H:i" }}</small>
+                                <p class="small mt-2">Aracınızın tamir işlemi tamamlandı ve teslime hazır.</p>
+                                {% else %}
+                                <small class="text-muted">Henüz tamamlanmadı</small>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-phone-alt me-2"></i>İletişim</h5>
+                </div>
+                <div class="card-body">
+                    <p>Tamir süreciyle ilgili sorularınız için bize ulaşabilirsiniz:</p>
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="bg-primary rounded-circle p-2 me-3">
+                            <i class="fas fa-phone text-white"></i>
+                        </div>
+                        <div>
+                            <h6 class="mb-0">Telefon</h6>
+                            <p class="mb-0">+90 555 123 4567</p>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-center">
+                        <div class="bg-primary rounded-circle p-2 me-3">
+                            <i class="fas fa-envelope text-white"></i>
+                        </div>
+                        <div>
+                            <h6 class="mb-0">E-posta</h6>
+                            <p class="mb-0">info@tamirtakip.com</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
+
+<style>
+    .timeline {
+        position: relative;
+        padding-left: 30px;
+    }
+    .timeline-item {
+        position: relative;
+        padding-bottom: 30px;
+    }
+    .timeline-item:last-child {
+        padding-bottom: 0;
+    }
+    .timeline-marker {
+        position: absolute;
+        left: -30px;
+        width: 15px;
+        height: 15px;
+        border-radius: 50%;
+    }
+    .timeline-item:not(:last-child) .timeline-marker:before {
+        content: '';
+        position: absolute;
+        left: 7px;
+        top: 15px;
+        height: calc(100% + 15px);
+        width: 1px;
+        background-color: #dee2e6;
+    }
+    .timeline-content {
+        padding-left: 10px;
+    }
+</style>
 {% endblock %}

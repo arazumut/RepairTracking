@@ -1,82 +1,148 @@
 {% extends 'core/base.html' %}
+{% load static %}
 
-{% block title %}Yeni Müşteri{% endblock %}
+{% block title %}{{ title|default:"Müşteri Formu" }}{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-    <div class="card shadow-lg">
-        <div class="card-header bg-primary text-white">
-            <h4>Yeni Müşteri Ekle</h4>
-        </div>
-        <div class="card-body">
-            <form method="POST">
-                {% csrf_token %}
-                
-                <div class="form-group">
-                    <label for="id_ad">Müşteri Adı:</label>
-                    {{ form.ad }}
+<div class="container-fluid py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0"><i class="fas fa-user-edit me-2"></i>{{ title|default:"Müşteri Bilgileri" }}</h4>
                 </div>
-                
-                <div class="form-group">
-                    <label for="id_telefon">Telefon:</label>
-                    {{ form.telefon }}
+                <div class="card-body">
+                    {% if is_portal %}
+                    <div class="alert alert-info mb-4">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>Bilgi:</strong> Müşteri portalını kullanabilmek için lütfen bilgilerinizi tamamlayın.
+                    </div>
+                    {% endif %}
+                    
+                    <form method="post" class="needs-validation" novalidate>
+                        {% csrf_token %}
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label for="{{ form.ad.id_for_label }}" class="form-label">Ad Soyad</label>
+                                    <input type="text" name="{{ form.ad.name }}" id="{{ form.ad.id_for_label }}" class="form-control {% if form.ad.errors %}is-invalid{% endif %}" value="{{ form.ad.value|default:'' }}" required>
+                                    {% if form.ad.errors %}
+                                    <div class="invalid-feedback">
+                                        {{ form.ad.errors.0 }}
+                                    </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="form-group mb-3">
+                                    <label for="{{ form.telefon.id_for_label }}" class="form-label">Telefon</label>
+                                    <input type="tel" name="{{ form.telefon.name }}" id="{{ form.telefon.id_for_label }}" class="form-control {% if form.telefon.errors %}is-invalid{% endif %}" value="{{ form.telefon.value|default:'' }}" required>
+                                    {% if form.telefon.errors %}
+                                    <div class="invalid-feedback">
+                                        {{ form.telefon.errors.0 }}
+                                    </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="form-group mb-3">
+                                    <label for="{{ form.email.id_for_label }}" class="form-label">E-posta</label>
+                                    <input type="email" name="{{ form.email.name }}" id="{{ form.email.id_for_label }}" class="form-control {% if form.email.errors %}is-invalid{% endif %}" value="{{ form.email.value|default:'' }}">
+                                    {% if form.email.errors %}
+                                    <div class="invalid-feedback">
+                                        {{ form.email.errors.0 }}
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label for="{{ form.adres.id_for_label }}" class="form-label">Adres</label>
+                                    <textarea name="{{ form.adres.name }}" id="{{ form.adres.id_for_label }}" class="form-control {% if form.adres.errors %}is-invalid{% endif %}" rows="5" required>{{ form.adres.value|default:'' }}</textarea>
+                                    {% if form.adres.errors %}
+                                    <div class="invalid-feedback">
+                                        {{ form.adres.errors.0 }}
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        {% if not is_portal %}
+                        <h5 class="border-bottom pb-2 mb-3">Araç Bilgileri</h5>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label for="{{ form.marka.id_for_label }}" class="form-label">Marka</label>
+                                    <input type="text" name="{{ form.marka.name }}" id="{{ form.marka.id_for_label }}" class="form-control {% if form.marka.errors %}is-invalid{% endif %}" value="{{ form.marka.value|default:'' }}" required>
+                                    {% if form.marka.errors %}
+                                    <div class="invalid-feedback">
+                                        {{ form.marka.errors.0 }}
+                                    </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="form-group mb-3">
+                                    <label for="{{ form.model.id_for_label }}" class="form-label">Model</label>
+                                    <input type="text" name="{{ form.model.name }}" id="{{ form.model.id_for_label }}" class="form-control {% if form.model.errors %}is-invalid{% endif %}" value="{{ form.model.value|default:'' }}" required>
+                                    {% if form.model.errors %}
+                                    <div class="invalid-feedback">
+                                        {{ form.model.errors.0 }}
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label for="{{ form.plaka.id_for_label }}" class="form-label">Plaka</label>
+                                    <input type="text" name="{{ form.plaka.name }}" id="{{ form.plaka.id_for_label }}" class="form-control {% if form.plaka.errors %}is-invalid{% endif %}" value="{{ form.plaka.value|default:'' }}" required>
+                                    {% if form.plaka.errors %}
+                                    <div class="invalid-feedback">
+                                        {{ form.plaka.errors.0 }}
+                                    </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="form-group mb-3">
+                                    <label for="{{ form.uretim_yili.id_for_label }}" class="form-label">Üretim Yılı</label>
+                                    <input type="number" name="{{ form.uretim_yili.name }}" id="{{ form.uretim_yili.id_for_label }}" class="form-control {% if form.uretim_yili.errors %}is-invalid{% endif %}" value="{{ form.uretim_yili.value|default:'' }}" required>
+                                    {% if form.uretim_yili.errors %}
+                                    <div class="invalid-feedback">
+                                        {{ form.uretim_yili.errors.0 }}
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+                            <div class="col-12">
+                                <div class="form-group mb-3">
+                                    <label for="{{ form.sorun_aciklama.id_for_label }}" class="form-label">Sorun Açıklaması</label>
+                                    <textarea name="{{ form.sorun_aciklama.name }}" id="{{ form.sorun_aciklama.id_for_label }}" class="form-control {% if form.sorun_aciklama.errors %}is-invalid{% endif %}" rows="3">{{ form.sorun_aciklama.value|default:'' }}</textarea>
+                                    {% if form.sorun_aciklama.errors %}
+                                    <div class="invalid-feedback">
+                                        {{ form.sorun_aciklama.errors.0 }}
+                                    </div>
+                                    {% endif %}
+                                    <div class="form-text">Aracınızla ilgili sorunu kısaca açıklayın.</div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                        
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                            {% if not is_portal %}
+                            <a href="{% url 'musteri_list' %}" class="btn btn-secondary me-md-2">
+                                <i class="fas fa-times me-1"></i> İptal
+                            </a>
+                            {% endif %}
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-1"></i> Kaydet
+                            </button>
+                        </div>
+                    </form>
                 </div>
-                
-                <div class="form-group">
-                    <label for="id_adres">Adres:</label>
-                    {{ form.adres }}
-                </div>
-                
-                <hr>
-                
-                <h4>Araç Bilgileri</h4>
-                
-                <div class="form-group">
-                    <label for="id_marka">Araç Markası:</label>
-                    {{ form.marka }}
-                </div>
-                
-                <div class="form-group">
-                    <label for="id_model">Araç Modeli:</label>
-                    {{ form.model }}
-                </div>
-                
-                <div class="form-group">
-                    <label for="id_plaka">Plaka:</label>
-                    {{ form.plaka }}
-                </div>
-                
-                <div class="form-group">
-                    <label for="id_uretim_yili">Üretim Yılı:</label>
-                    {{ form.uretim_yili }}
-                </div>
-                
-                <hr>
-                
-                <h4>Araç Sorunu</h4>
-                
-                <div class="form-group">
-                    <label for="id_sorun_aciklama">Sorun Açıklaması:</label>
-                    {{ form.sorun_aciklama }}
-                </div>
-                
-                <br>
-                <button type="submit" class="btn btn-primary btn-lg btn-block">Kaydet</button>
-            </form>
-            <style>
-                @media (max-width: 576px) {
-                    .form-group {
-                        margin-bottom: 1rem;
-                    }
-                    label {
-                        display: block;
-                        margin-bottom: 0.5rem;
-                    }
-                    .btn-block {
-                        width: 100%;
-                    }
-                }
-            </style>
+            </div>
         </div>
     </div>
 </div>

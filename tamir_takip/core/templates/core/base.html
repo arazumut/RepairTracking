@@ -16,6 +16,30 @@
     <link href="{% static 'adminlte3/css/adminlte.min.css' %}" rel="stylesheet">
     <link href="{% static 'css/style.css' %}" rel="stylesheet">
     <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+    <style>
+        .user-menu .dropdown-menu {
+            min-width: 200px;
+            padding: 10px;
+        }
+        .user-header {
+            padding: 15px;
+            text-align: center;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .user-header p {
+            margin-bottom: 0;
+        }
+        .user-footer {
+            padding: 10px 15px;
+            display: flex;
+            justify-content: space-between;
+        }
+        .user-badge {
+            font-size: 0.75rem;
+            padding: 0.25rem 0.5rem;
+            margin-left: 5px;
+        }
+    </style>
 </head>
 <body class="hold-transition sidebar-mini layout-fixed">
     <div class="wrapper">
@@ -30,6 +54,37 @@
                 </li>
             </ul>
             <ul class="navbar-nav ml-auto">
+                {% if user.is_authenticated %}
+                <li class="nav-item dropdown user-menu">
+                    <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+                        <i class="fas fa-user-circle mr-2"></i>
+                        <span class="d-none d-md-inline">{{ user.username }}</span>
+                        {% if user.profile.user_type == 'tamirci' %}
+                        <span class="badge badge-success user-badge">Tamirci</span>
+                        {% else %}
+                        <span class="badge badge-info user-badge">Müşteri</span>
+                        {% endif %}
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
+                        <li class="user-header">
+                            <i class="fas fa-user-circle fa-3x text-primary mb-2"></i>
+                            <p>
+                                {{ user.username }}
+                                <small>{{ user.email }}</small>
+                            </p>
+                            {% if user.profile.user_type == 'tamirci' %}
+                            <span class="badge badge-success">Tamirci</span>
+                            {% else %}
+                            <span class="badge badge-info">Müşteri</span>
+                            {% endif %}
+                        </li>
+                        <li class="user-footer">
+                            <a href="#" class="btn btn-default btn-flat">Profil</a>
+                            <a href="{% url 'logout' %}" class="btn btn-danger btn-flat">Çıkış Yap</a>
+                        </li>
+                    </ul>
+                </li>
+                {% endif %}
             </ul>
         </nav>
 
@@ -39,54 +94,124 @@
                 <span class="brand-text font-weight-light">Tamir Takip Sistemi</span>
             </a>
             <div class="sidebar">
+                {% if user.is_authenticated %}
+                <div class="user-panel mt-3 pb-3 mb-3 d-flex">
+                    <div class="image">
+                        <i class="fas fa-user-circle fa-2x text-light"></i>
+                    </div>
+                    <div class="info">
+                        <a href="#" class="d-block">{{ user.username }}</a>
+                    </div>
+                </div>
+                {% endif %}
+                
                 <nav class="mt-2">
                     <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu">
-                        <li class="nav-item">
-                            <a href="{% url 'home' %}" class="nav-link">
-                                <i class="nav-icon fas fa-home"></i>
-                                <p>Ana Sayfa</p>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="{% url 'musteri_list' %}" class="nav-link">
-                                <i class="nav-icon fas fa-users"></i>
-                                <p>Müşteriler</p>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="{% url 'arac_list' %}" class="nav-link">
-                                <i class="nav-icon fas fa-car"></i>
-                                <p>Araçlar</p>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="{% url 'isemri_list' %}" class="nav-link">
-                                <i class="nav-icon fas fa-clipboard-list"></i>
-                                <p>İş Emirleri</p>
-                            </a>
-                        </li>
+                        {% if user.is_authenticated %}
+                            {% if user.profile.user_type == 'tamirci' %}
+                                <!-- Tamirci Menüsü -->
+                                <li class="nav-item">
+                                    <a href="{% url 'home' %}" class="nav-link">
+                                        <i class="nav-icon fas fa-home"></i>
+                                        <p>Ana Sayfa</p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="{% url 'musteri_list' %}" class="nav-link">
+                                        <i class="nav-icon fas fa-users"></i>
+                                        <p>Müşteriler</p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="{% url 'arac_list' %}" class="nav-link">
+                                        <i class="nav-icon fas fa-car"></i>
+                                        <p>Araçlar</p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="{% url 'isemri_list' %}" class="nav-link">
+                                        <i class="nav-icon fas fa-clipboard-list"></i>
+                                        <p>İş Emirleri</p>
+                                    </a>
+                                </li>
+                            {% else %}
+                                <!-- Müşteri Menüsü -->
+                                <li class="nav-item">
+                                    <a href="{% url 'musteri_portal' %}" class="nav-link">
+                                        <i class="nav-icon fas fa-tachometer-alt"></i>
+                                        <p>Kontrol Paneli</p>
+                                    </a>
+                                </li>
+                            {% endif %}
+                            <!-- Ortak Menü Öğeleri -->
+                            <li class="nav-item">
+                                <a href="{% url 'logout' %}" class="nav-link text-danger">
+                                    <i class="nav-icon fas fa-sign-out-alt"></i>
+                                    <p>Çıkış Yap</p>
+                                </a>
+                            </li>
+                        {% else %}
+                            <!-- Giriş Yapmamış Kullanıcı Menüsü -->
+                            <li class="nav-item">
+                                <a href="{% url 'home' %}" class="nav-link">
+                                    <i class="nav-icon fas fa-home"></i>
+                                    <p>Ana Sayfa</p>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="{% url 'login' %}" class="nav-link">
+                                    <i class="nav-icon fas fa-sign-in-alt"></i>
+                                    <p>Giriş Yap</p>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="{% url 'register' %}" class="nav-link">
+                                    <i class="nav-icon fas fa-user-plus"></i>
+                                    <p>Kayıt Ol</p>
+                                </a>
+                            </li>
+                        {% endif %}
                     </ul>
                 </nav>
             </div>
         </aside>
 
         <div class="content-wrapper">
-            {% block content %} {% endblock %}
+            <div class="container-fluid">
+                <!-- Messages -->
+                {% if messages %}
+                <div class="row mt-3">
+                    <div class="col-12">
+                        {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                            {% if message.tags == 'success' %}<i class="fas fa-check-circle me-2"></i>{% endif %}
+                            {% if message.tags == 'error' or message.tags == 'danger' %}<i class="fas fa-exclamation-circle me-2"></i>{% endif %}
+                            {% if message.tags == 'warning' %}<i class="fas fa-exclamation-triangle me-2"></i>{% endif %}
+                            {% if message.tags == 'info' %}<i class="fas fa-info-circle me-2"></i>{% endif %}
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+                
+                {% block content %}{% endblock %}
+            </div>
         </div>
 
         <footer class="main-footer">
             <strong>© 2025 Tamir Takip (K. UMUT ARAZ) | Tüm hakları saklıdır.</strong>
-
         </footer>
     </div>
-                <script src="{% static 'adminlte3/js/adminlte.min.js' %}"></script>
-
-                <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-                <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
-                <script src="https://cdn.jsdelivr.net/npm/admin-lte@3.2/dist/js/adminlte.min.js"></script>
-                <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Bootstrap 4 -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- AdminLTE App -->
+    <script src="https://cdn.jsdelivr.net/npm/admin-lte@3.2/dist/js/adminlte.min.js"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </body>
-
-
 </html>

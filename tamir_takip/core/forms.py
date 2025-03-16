@@ -1,10 +1,38 @@
 from django import forms
-from .models import Musteri, Arac, IsEmri
+from .models import Musteri, Arac, IsEmri, UserProfile
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.models import User
+
+
+class UserRegisterForm(UserCreationForm):
+    email = forms.EmailField(required=True)
+    user_type = forms.ChoiceField(
+        choices=UserProfile.USER_TYPES,
+        required=True,
+        label="Kullanıcı Tipi",
+        widget=forms.RadioSelect
+    )
+    
+    class Meta:
+        model = User
+        fields = ['username', 'email', 'password1', 'password2', 'user_type']
+    
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        user.email = self.cleaned_data['email']
+        
+        if commit:
+            user.save()
+            user.profile.user_type = self.cleaned_data['user_type']
+            user.profile.save()
+            
+        return user
 
 
 class MusteriForm(forms.ModelForm):
+    email = forms.EmailField(required=False, label="E-posta")
     marka = forms.CharField(max_length=100, required=True, label="Araç Markası")
     model = forms.CharField(max_length=100, required=True, label="Araç Modeli")
     plaka = forms.CharField(max_length=20, required=True, label="Plaka")
@@ -13,8 +41,7 @@ class MusteriForm(forms.ModelForm):
 
     class Meta:
         model = Musteri
-        fields = ['ad', 'telefon', 'adres', 'marka', 'model', 'plaka', 'uretim_yili', 'sorun_aciklama']
-
+        fields = ['ad', 'telefon', 'email', 'adres', 'marka', 'model', 'plaka', 'uretim_yili', 'sorun_aciklama']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
