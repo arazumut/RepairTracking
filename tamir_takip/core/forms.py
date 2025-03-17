@@ -37,7 +37,7 @@ class MusteriForm(forms.ModelForm):
     model = forms.CharField(max_length=100, required=True, label="Araç Modeli")
     plaka = forms.CharField(max_length=20, required=True, label="Plaka")
     uretim_yili = forms.IntegerField(required=True, label="Üretim Yılı")
-    sorun_aciklama = forms.CharField(widget=forms.Textarea, required=True, label="Araç Sorunu")
+    sorun_aciklama = forms.CharField(widget=forms.Textarea, required=False, label="Araç Sorunu")
 
     class Meta:
         model = Musteri

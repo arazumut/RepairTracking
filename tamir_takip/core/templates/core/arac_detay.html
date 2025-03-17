@@ -1,80 +1,175 @@
 {% extends 'core/base.html' %}
+{% load static %}
 
 {% block title %}{{ arac.plaka }} - Araç Detayı{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-    <div class="card shadow-lg mb-4">
+<div class="container-fluid py-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    {% if is_musteri %}
+                    <li class="breadcrumb-item"><a href="{% url 'musteri_portal' %}">Müşteri Portalı</a></li>
+                    {% else %}
+                    <li class="breadcrumb-item"><a href="{% url 'arac_list' %}">Araçlar</a></li>
+                    {% endif %}
+                    <li class="breadcrumb-item active" aria-current="page">{{ arac.plaka }}</li>
+                </ol>
+            </nav>
+        </div>
     </div>
 
-    <div class="card shadow-lg">
-        <div class="card-header bg-primary text-white">
-            <h5 class="mb-0">Servis Geçmişi</h5>
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0"><i class="fas fa-car me-2"></i>Araç Bilgileri</h4>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-4">
+                        <div class="bg-primary rounded-circle p-3 me-3">
+                            <i class="fas fa-car text-white"></i>
+                        </div>
+                        <div>
+                            <h5 class="mb-0">{{ arac.marka }} {{ arac.model }}</h5>
+                            <p class="text-muted mb-0">{{ arac.plaka }}</p>
+                        </div>
+                    </div>
+                    
+                    <table class="table table-borderless">
+                        <tr>
+                            <th width="40%">Marka:</th>
+                            <td>{{ arac.marka }}</td>
+                        </tr>
+                        <tr>
+                            <th>Model:</th>
+                            <td>{{ arac.model }}</td>
+                        </tr>
+                        <tr>
+                            <th>Plaka:</th>
+                            <td>{{ arac.plaka }}</td>
+                        </tr>
+                        <tr>
+                            <th>Üretim Yılı:</th>
+                            <td>{{ arac.uretim_yili }}</td>
+                        </tr>
+                        <tr>
+                            <th>Müşteri:</th>
+                            <td>{{ arac.musteri.ad }}</td>
+                        </tr>
+                    </table>
+                    
+                    {% if not is_musteri %}
+                    <div class="d-grid gap-2 mt-3">
+                        <a href="{% url 'arac_duzenle' arac.id %}" class="btn btn-outline-primary">
+                            <i class="fas fa-edit me-1"></i> Düzenle
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
         </div>
-        <div class="card-body">
-            <div class="timeline">
-                {% for isemri in isemri_listesi %}
-                <div class="timeline-item">
-                    <div class="timeline-marker bg-{{ isemri.durum }}"></div>
-                    <div class="timeline-content">
-                        <div class="card mb-3">
-                            <div class="card-header d-flex justify-content-between align-items-center">
-                                <span>{{ isemri.baslama_tarihi|date:"d.m.Y H:i" }}</span>
-                                <span class="badge bg-{{ isemri.durum }}">{{ isemri.get_durum_display }}</span>
-                            </div>
-                            <div class="card-body">
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <h6>Geliş Nedeni:</h6>
-                                        <p>{{ isemri.aciklama }}</p>
-                                        
-                                        {% if isemri.yapilan_islemler %}
-                                        <h6>Yapılan İşlemler:</h6>
-                                        <p>{{ isemri.yapilan_islemler }}</p>
-                                        {% endif %}
-                                        
-                                        {% if isemri.kullanilan_parcalar %}
-                                        <h6>Kullanılan Parçalar:</h6>
-                                        <p>{{ isemri.kullanilan_parcalar }}</p>
-                                        {% endif %}
+        
+        <div class="col-md-8">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                    <h4 class="mb-0"><i class="fas fa-history me-2"></i>Servis Geçmişi</h4>
+                    {% if not is_musteri %}
+                    <a href="{% url 'isemri_ekle' %}" class="btn btn-light btn-sm">
+                        <i class="fas fa-plus me-1"></i> Yeni İş Emri
+                    </a>
+                    {% endif %}
+                </div>
+                <div class="card-body">
+                    <div class="timeline">
+                        {% for isemri in isemri_listesi %}
+                        <div class="timeline-item">
+                            <div class="timeline-marker {% if isemri.durum == 'tamamlandi' %}bg-success{% elif isemri.durum == 'devam_ediyor' or isemri.durum == 'tamirde' or isemri.durum == 'inceleniyor' %}bg-warning{% else %}bg-secondary{% endif %}"></div>
+                            <div class="timeline-content">
+                                <div class="card mb-3 border-0 shadow-sm">
+                                    <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <h5 class="mb-0">İş Emri #{{ isemri.id }}</h5>
+                                            <small class="text-muted">{{ isemri.baslama_tarihi|date:"d.m.Y H:i" }}</small>
+                                        </div>
+                                        <span class="badge {% if isemri.durum == 'tamamlandi' %}bg-success{% elif isemri.durum == 'devam_ediyor' or isemri.durum == 'tamirde' or isemri.durum == 'inceleniyor' %}bg-warning{% else %}bg-secondary{% endif %}">
+                                            {% if isemri.durum == 'beklemede' %}Beklemede{% elif isemri.durum == 'inceleniyor' %}İnceleniyor{% elif isemri.durum == 'tamirde' %}Tamirde{% elif isemri.durum == 'devam_ediyor' %}Devam Ediyor{% elif isemri.durum == 'tamamlandi' %}Tamamlandı{% endif %}
+                                        </span>
                                     </div>
-                                    <div class="col-md-6">
-                                        <table class="table table-sm">
-                                            <tr>
-                                                <th>Teknisyen:</th>
-                                                <td>{{ isemri.teknisyen|default:"-" }}</td>
-                                            </tr>
-                                            <tr>
-                                                <th>Kilometre:</th>
-                                                <td>{{ isemri.kilometre|default:"-" }} km</td>
-                                            </tr>
-                                            <tr>
-                                                <th>Maliyet:</th>
-                                                <td>{{ isemri.toplam_maliyet }} TL</td>
-                                            </tr>
-                                            {% if isemri.bitis_tarihi %}
-                                            <tr>
-                                                <th>Bitiş Tarihi:</th>
-                                                <td>{{ isemri.bitis_tarihi|date:"d.m.Y H:i" }}</td>
-                                            </tr>
-                                            {% endif %}
-                                        </table>
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <h6 class="border-bottom pb-2 mb-2">Geliş Nedeni</h6>
+                                                <p>{{ isemri.aciklama }}</p>
+                                                
+                                                {% if isemri.yapilan_islemler %}
+                                                <h6 class="border-bottom pb-2 mb-2 mt-4">Yapılan İşlemler</h6>
+                                                <p>{{ isemri.yapilan_islemler }}</p>
+                                                {% endif %}
+                                                
+                                                {% if isemri.kullanilan_parcalar %}
+                                                <h6 class="border-bottom pb-2 mb-2 mt-4">Kullanılan Parçalar</h6>
+                                                <p>{{ isemri.kullanilan_parcalar }}</p>
+                                                {% endif %}
+                                            </div>
+                                            <div class="col-md-6">
+                                                <h6 class="border-bottom pb-2 mb-2">Detaylar</h6>
+                                                <table class="table table-sm">
+                                                    <tr>
+                                                        <th width="40%">Teknisyen:</th>
+                                                        <td>{{ isemri.teknisyen|default:"-" }}</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <th>Kilometre:</th>
+                                                        <td>{{ isemri.kilometre|default:"-" }} km</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <th>Maliyet:</th>
+                                                        <td>{{ isemri.toplam_maliyet|default:"0" }} TL</td>
+                                                    </tr>
+                                                    {% if isemri.bitis_tarihi %}
+                                                    <tr>
+                                                        <th>Bitiş Tarihi:</th>
+                                                        <td>{{ isemri.bitis_tarihi|date:"d.m.Y H:i" }}</td>
+                                                    </tr>
+                                                    {% endif %}
+                                                </table>
+                                                
+                                                {% if isemri.notlar %}
+                                                <h6 class="border-bottom pb-2 mb-2 mt-4">Notlar</h6>
+                                                <p>{{ isemri.notlar }}</p>
+                                                {% endif %}
+                                            </div>
+                                        </div>
                                         
-                                        {% if isemri.notlar %}
-                                        <h6>Notlar:</h6>
-                                        <p>{{ isemri.notlar }}</p>
-                                        {% endif %}
+                                        <div class="d-flex justify-content-end mt-3">
+                                            <a href="{% url 'tamir_durum' isemri.id %}" class="btn btn-sm btn-outline-primary">
+                                                <i class="fas fa-eye me-1"></i> Detayları Gör
+                                            </a>
+                                            {% if not is_musteri %}
+                                            <a href="{% url 'isemri_duzenle' isemri.id %}" class="btn btn-sm btn-outline-secondary ms-2">
+                                                <i class="fas fa-edit me-1"></i> Düzenle
+                                            </a>
+                                            {% endif %}
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
+                        {% empty %}
+                        <div class="text-center py-5">
+                            <i class="fas fa-clipboard-list fa-4x text-muted mb-3"></i>
+                            <h5>Bu araca ait servis geçmişi bulunmamaktadır.</h5>
+                            {% if not is_musteri %}
+                            <a href="{% url 'isemri_ekle' %}" class="btn btn-primary mt-3">
+                                <i class="fas fa-plus me-1"></i> Yeni İş Emri Oluştur
+                            </a>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
                     </div>
                 </div>
-                {% empty %}
-                <div class="text-center text-muted">
-                    Bu araca ait servis geçmişi bulunmamaktadır.
-                </div>
-                {% endfor %}
             </div>
         </div>
     </div>
@@ -100,7 +195,7 @@
         height: 15px;
         border-radius: 50%;
         border: 2px solid #fff;
-        box-shadow: 0 0 0 3px #007bff;
+        box-shadow: 0 0 0 3px rgba(0,0,0,0.1);
     }
     
     .timeline-item::before {
@@ -113,9 +208,8 @@
         background: #e9ecef;
     }
     
-    .bg-beklemede { background-color: #ffc107; }
-    .bg-inceleniyor { background-color: #17a2b8; }
-    .bg-tamirde { background-color: #007bff; }
-    .bg-tamamlandi { background-color: #28a745; }
+    .timeline-item:last-child::before {
+        display: none;
+    }
 </style>
 {% endblock %}

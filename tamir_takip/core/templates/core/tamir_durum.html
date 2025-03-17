@@ -121,10 +121,10 @@
                             </div>
                         </div>
                         <div class="timeline-item">
-                            <div class="timeline-marker {% if is_emri.durum == 'devam_ediyor' or is_emri.durum == 'tamamlandi' %}bg-success{% else %}bg-secondary{% endif %}"></div>
+                            <div class="timeline-marker {% if is_emri.durum == 'inceleniyor' or is_emri.durum == 'tamirde' or is_emri.durum == 'devam_ediyor' or is_emri.durum == 'tamamlandi' %}bg-success{% else %}bg-secondary{% endif %}"></div>
                             <div class="timeline-content">
                                 <h6 class="mb-0">Tamir İşlemi Başladı</h6>
-                                {% if is_emri.durum == 'devam_ediyor' or is_emri.durum == 'tamamlandi' %}
+                                {% if is_emri.durum == 'inceleniyor' or is_emri.durum == 'tamirde' or is_emri.durum == 'devam_ediyor' or is_emri.durum == 'tamamlandi' %}
                                 <small class="text-muted">{{ is_emri.baslama_tarihi|date:"d.m.Y H:i" }}</small>
                                 <p class="small mt-2">Aracınız üzerinde çalışmaya başlandı.</p>
                                 {% else %}
@@ -152,7 +152,7 @@
                 <div class="card-header bg-primary text-white">
                     <h5 class="mb-0"><i class="fas fa-phone-alt me-2"></i>İletişim</h5>
                 </div>
-                <div class="card-body">
+        <div class="card-body">
                     <p>Tamir süreciyle ilgili sorularınız için bize ulaşabilirsiniz:</p>
                     <div class="d-flex align-items-center mb-3">
                         <div class="bg-primary rounded-circle p-2 me-3">
