@@ -12,11 +12,10 @@ from .views import (
 )
 from django.contrib.auth.decorators import login_required, user_passes_test
 
-# Tamirci kontrolü için fonksiyon
+
 def is_tamirci(user):
     return hasattr(user, 'profile') and user.profile.user_type == 'tamirci'
 
-# Tamirci erişimi için decorator
 tamirci_required = user_passes_test(is_tamirci, login_url='musteri_portal')
 
 router = DefaultRouter()
@@ -32,7 +31,6 @@ urlpatterns = [
     path('login/', login_view, name='login'),
     path('logout/', logout_view, name='logout'),
     
-    # Tamirci erişimi gerektiren URL'ler
     path('musteriler/', login_required(tamirci_required(musteri_list)), name='musteri_list'),
     path('musteri-ekle/', login_required(tamirci_required(musteri_ekle)), name='musteri_ekle'),
     path('musteri-guncelle/<int:pk>/', login_required(tamirci_required(musteri_guncelle)), name='musteri_guncelle'),
@@ -50,7 +48,6 @@ urlpatterns = [
     path('isemri/<int:pk>/duzenle/', login_required(tamirci_required(isemri_duzenle)), name='isemri_duzenle'),
     path('isemri/<int:pk>/sil/', login_required(tamirci_required(isemri_sil)), name='isemri_sil'),
 
-    # Müşteri erişimi olan URL'ler
     path('musteri-portal/', login_required(musteri_portal), name='musteri_portal'),
     path('musteri-arac-ekle/', views.musteri_arac_ekle, name='musteri_arac_ekle'),
     path('musteri-araclar/', login_required(musteri_arac_list), name='musteri_arac_list'),
@@ -60,6 +57,6 @@ urlpatterns = [
     path('musteri-isemri/<int:isemri_id>/iptal/', views.musteri_isemri_iptal, name='musteri_isemri_iptal'),
     path('tamir-durum/<int:pk>/', login_required(tamir_durum), name='tamir_durum'),
 
-    # API URL'leri
     path('api/', include(router.urls)),
+    path('iletisim/', views.iletisim, name='iletisim'),
 ]

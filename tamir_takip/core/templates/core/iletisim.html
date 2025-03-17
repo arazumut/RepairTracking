@@ -1,0 +1,550 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}İletişim - Tamir Takip Sistemi{% endblock %}
+
+{% block extra_css %}
+<style>
+    
+    body {
+        overflow-x: hidden;
+    }
+    
+    .sidebar {
+        display: none !important;
+    }
+    
+    .content-wrapper {
+        margin-left: 0 !important;
+        width: 100% !important;
+    }
+    
+    .navbar {
+        left: 0 !important;
+        background-color: #3f51b5 !important;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1) !important;
+    }
+    
+    .navbar-brand, .nav-link {
+        color: #fff !important;
+    }
+    
+    .nav-link:hover {
+        color: rgba(255, 255, 255, 0.85) !important;
+    }
+    
+    .navbar .btn {
+        font-weight: 500;
+        padding: 0.5rem 1rem;
+        transition: all 0.3s ease;
+    }
+    
+    .navbar .btn-outline-light {
+        border-color: #fff;
+        color: #fff;
+    }
+    
+    .navbar .btn-outline-light:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+    }
+    
+    .navbar-toggler {
+        border-color: rgba(255, 255, 255, 0.5);
+    }
+    
+    .navbar-toggler-icon {
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%28255, 255, 255, 0.7%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+    }
+
+    
+    .page-header {
+        background: linear-gradient(135deg, #3f51b5 0%, #1a237e 100%);
+        color: white;
+        padding: 80px 0 100px;
+        position: relative;
+        overflow: hidden;
+        margin-top: 56px; 
+        margin-bottom: 4rem;
+    }
+    
+    .page-header::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 70px;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 320'%3E%3Cpath fill='%23ffffff' fill-opacity='1' d='M0,96L48,112C96,128,192,160,288,160C384,160,480,128,576,117.3C672,107,768,117,864,138.7C960,160,1056,192,1152,186.7C1248,181,1344,139,1392,117.3L1440,96L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z'%3E%3C/path%3E%3C/svg%3E");
+        background-size: cover;
+        background-position: center;
+    }
+    
+    .contact-card {
+        border-radius: 15px;
+        border: none;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+    }
+    
+    .contact-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+    }
+    
+    .contact-form input.form-control,
+    .contact-form textarea.form-control {
+        padding: 12px 15px;
+        border-radius: 8px;
+        border: 1px solid #ced4da;
+        transition: all 0.3s ease;
+    }
+    
+    .contact-form input.form-control:focus,
+    .contact-form textarea.form-control:focus {
+        border-color: #3f51b5;
+        box-shadow: 0 0 0 0.25rem rgba(63, 81, 181, 0.25);
+    }
+    
+    .contact-icon {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background-color: #3f51b5;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 15px;
+        color: white;
+        font-size: 1.25rem;
+        flex-shrink: 0;
+    }
+    
+    .social-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background-color: #f8f9fa;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #3f51b5;
+        margin-right: 10px;
+        transition: all 0.3s ease;
+    }
+    
+    .social-icon:hover {
+        background-color: #3f51b5;
+        color: white;
+        transform: translateY(-5px);
+    }
+    
+    .developer-card {
+        border-radius: 15px;
+        overflow: hidden;
+        border: none;
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+    }
+    
+    .developer-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+    }
+    
+    .developer-image {
+        height: 250px;
+        object-fit: cover;
+    }
+    
+    .skill-badge {
+        background-color: rgba(63, 81, 181, 0.1);
+        color: #3f51b5;
+        padding: 5px 12px;
+        border-radius: 20px;
+        margin-right: 8px;
+        margin-bottom: 8px;
+        display: inline-block;
+        font-weight: 500;
+        font-size: 0.8rem;
+    }
+    
+    .map-container {
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    }
+    
+    .contact-info-item {
+        transition: all 0.3s ease;
+    }
+    
+    .contact-info-item:hover {
+        transform: translateX(10px);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<nav class="navbar navbar-expand-lg fixed-top py-3">
+    <div class="container">
+        <a class="navbar-brand" href="{% url 'welcome' %}">
+            <i class="fas fa-tools me-2"></i>
+            Tamir Takip Sistemi
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'welcome' %}#features">Özellikler</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'welcome' %}#testimonials">Referanslar</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link active" href="{% url 'iletisim' %}">İletişim</a>
+                </li>
+                {% if user.is_authenticated %}
+                    {% if user.profile.user_type == 'tamirci' %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'home' %}">Kontrol Paneli</a>
+                    </li>
+                    {% else %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'musteri_portal' %}">Müşteri Portalı</a>
+                    </li>
+                    {% endif %}
+                {% else %}
+                <li class="nav-item ms-3">
+                    <a href="{% url 'login' %}" class="btn btn-outline-light me-2">
+                        <i class="fas fa-sign-in-alt me-1"></i> Giriş Yap
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{% url 'register' %}" class="btn btn-light">
+                        <i class="fas fa-user-plus me-1"></i> Kayıt Ol
+                    </a>
+                </li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+</nav>
+
+
+<section class="page-header">
+    <div class="container">
+        <div class="row justify-content-center text-center">
+            <div class="col-lg-8">
+                <h1 class="display-4 fw-bold mb-3">İletişime Geçin</h1>
+                <p class="lead mb-4">Sorularınız ya da geri bildirimleriniz için bize ulaşabilirsiniz.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<section class="py-5">
+    <div class="container">
+        <div class="row g-4">
+            <div class="col-lg-7">
+                <div class="card contact-card h-100">
+                    <div class="card-body p-4 p-lg-5">
+                        <h2 class="card-title fw-bold mb-4"><i class="fas fa-envelope me-2 text-primary"></i> Bize Yazın</h2>
+                        <p class="text-muted mb-4">Sorularınızı, önerilerinizi veya geri bildirimlerinizi bizimle paylaşın. En kısa sürede size dönüş yapacağız.</p>
+                        
+                        <form class="contact-form" method="post" action="{% url 'iletisim' %}">
+                            {% csrf_token %}
+                            
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="name" class="form-label">Adınız Soyadınız</label>
+                                        <input type="text" class="form-control" id="name" name="name" required>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="email" class="form-label">E-posta Adresiniz</label>
+                                        <input type="email" class="form-control" id="email" name="email" required>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="subject" class="form-label">Konu</label>
+                                <input type="text" class="form-control" id="subject" name="subject" required>
+                            </div>
+                            
+                            <div class="mb-4">
+                                <label for="message" class="form-label">Mesajınız</label>
+                                <textarea class="form-control" id="message" name="message" rows="5" required></textarea>
+                            </div>
+                            
+                            <div class="d-grid">
+                                <button type="submit" class="btn btn-primary btn-lg">
+                                    <i class="fas fa-paper-plane me-2"></i> Mesajı Gönder
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-5">
+                <div class="card contact-card h-100">
+                    <div class="card-body p-4 p-lg-5">
+                        <h2 class="card-title fw-bold mb-4"><i class="fas fa-info-circle me-2 text-primary"></i> İletişim Bilgileri</h2>
+                        <p class="text-muted mb-4">Aşağıdaki iletişim bilgilerinden bize ulaşabilirsiniz. Çalışma saatlerimiz içinde size yardımcı olmaktan memnuniyet duyarız.</p>
+                        
+                        <div class="contact-info">
+                            <div class="d-flex align-items-center mb-4 contact-info-item">
+                                <div class="contact-icon">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                </div>
+                                <div>
+                                    <h5 class="mb-1 fw-bold">Adres</h5>
+                                    <p class="mb-0">Tamir Sokak No:123, Merkez/İstanbul</p>
+                                </div>
+                            </div>
+                            
+                            <div class="d-flex align-items-center mb-4 contact-info-item">
+                                <div class="contact-icon">
+                                    <i class="fas fa-phone"></i>
+                                </div>
+                                <div>
+                                    <h5 class="mb-1 fw-bold">Telefon</h5>
+                                    <p class="mb-0">+90 555 123 4567</p>
+                                </div>
+                            </div>
+                            
+                            <div class="d-flex align-items-center mb-4 contact-info-item">
+                                <div class="contact-icon">
+                                    <i class="fas fa-envelope"></i>
+                                </div>
+                                <div>
+                                    <h5 class="mb-1 fw-bold">E-posta</h5>
+                                    <p class="mb-0">info@tamirtakip.com</p>
+                                </div>
+                            </div>
+                            
+                            <div class="d-flex align-items-center mb-4 contact-info-item">
+                                <div class="contact-icon">
+                                    <i class="fas fa-clock"></i>
+                                </div>
+                                <div>
+                                    <h5 class="mb-1 fw-bold">Çalışma Saatleri</h5>
+                                    <p class="mb-0">Pazartesi - Cuma: 09:00 - 18:00<br>Cumartesi: 10:00 - 14:00</p>
+                                </div>
+                            </div>
+                            
+                            <div class="mt-4">
+                                <h5 class="fw-bold mb-3">Sosyal Medya</h5>
+                                <div class="d-flex">
+                                    <a href="#" class="social-icon">
+                                        <i class="fab fa-facebook-f"></i>
+                                    </a>
+                                    <a href="#" class="social-icon">
+                                        <i class="fab fa-twitter"></i>
+                                    </a>
+                                    <a href="#" class="social-icon">
+                                        <i class="fab fa-instagram"></i>
+                                    </a>
+                                    <a href="#" class="social-icon">
+                                        <i class="fab fa-linkedin-in"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<section class="py-5">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="fw-bold mb-3">Bizi Ziyaret Edin</h2>
+            <p class="text-muted">Tamir merkezimizi aşağıdaki haritadan bulabilirsiniz.</p>
+        </div>
+        
+        <div class="map-container">
+            <div class="ratio ratio-21x9">
+                <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d192697.7977089577!2d28.947514921166353!3d41.00546328511276!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x14caa7040068086b%3A0xe1ccfe98bc01b0d0!2zxLBzdGFuYnVs!5e0!3m2!1str!2str!4v1676294046492!5m2!1str!2str" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<section class="py-5 bg-light">
+    <div class="container py-4">
+        <div class="text-center mb-5">
+            <h2 class="fw-bold mb-3">Geliştirici Ekibimiz</h2>
+            <p class="text-muted">Tamir Takip sistemini geliştiren uzman ekibimizle tanışın</p>
+        </div>
+        
+        <div class="row g-4">
+            <div class="col-lg-4 col-md-6">
+                <div class="card developer-card h-100">
+                    <img src="{% static 'core/images/IMG_6762.jpg' %}" class="card-img-top developer-image" alt="K. Umut Araz">
+                    <div class="card-body p-4">
+                        <h4 class="card-title fw-bold">K. Umut Araz</h4>
+                        <p class="text-primary fw-bold mb-3">Baş Geliştirici & Kurucu</p>
+                        <p class="text-muted mb-3">Yazılım geliştirme konusunda 8+ yıl deneyimli, otomobil tutkunlarına daha iyi hizmet sunmak için bu platformu geliştirdi.</p>
+                        
+                        <div class="mb-3">
+                            <span class="skill-badge">Django</span>
+                            <span class="skill-badge">Python</span>
+                            <span class="skill-badge">JavaScript</span>
+                            <span class="skill-badge">Bootstrap</span>
+                        </div>
+                        
+                        <div class="d-flex mt-3">
+                            <a href="#" class="social-icon me-2">
+                                <i class="fab fa-github"></i>
+                            </a>
+                            <a href="#" class="social-icon me-2">
+                                <i class="fab fa-linkedin-in"></i>
+                            </a>
+                            <a href="#" class="social-icon">
+                                <i class="fab fa-twitter"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-4 col-md-6">
+                <div class="card developer-card h-100">
+                    <img src="https://via.placeholder.com/500x500.png?text=Ayşe+Yılmaz" class="card-img-top developer-image" alt="Ayşe Yılmaz">
+                    <div class="card-body p-4">
+                        <h4 class="card-title fw-bold">Ayşe Yılmaz</h4>
+                        <p class="text-primary fw-bold mb-3">UI/UX Tasarımcı</p>
+                        <p class="text-muted mb-3">Kullanıcı deneyimi konusunda uzman, Tamir Takip sisteminin kullanıcı dostu arayüzünü tasarladı.</p>
+                        
+                        <div class="mb-3">
+                            <span class="skill-badge">UI/UX</span>
+                            <span class="skill-badge">Figma</span>
+                            <span class="skill-badge">Adobe XD</span>
+                            <span class="skill-badge">CSS</span>
+                        </div>
+                        
+                        <div class="d-flex mt-3">
+                            <a href="#" class="social-icon me-2">
+                                <i class="fab fa-github"></i>
+                            </a>
+                            <a href="#" class="social-icon me-2">
+                                <i class="fab fa-linkedin-in"></i>
+                            </a>
+                            <a href="#" class="social-icon">
+                                <i class="fab fa-twitter"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-4 col-md-6">
+                <div class="card developer-card h-100">
+                    <img src="https://via.placeholder.com/500x500.png?text=Mehmet+Demir" class="card-img-top developer-image" alt="Mehmet Demir">
+                    <div class="card-body p-4">
+                        <h4 class="card-title fw-bold">Mehmet Demir</h4>
+                        <p class="text-primary fw-bold mb-3">Back-end Geliştirici</p>
+                        <p class="text-muted mb-3">Veritabanı ve sistem mimarisi konusunda uzman, platformun sağlam altyapısını oluşturdu.</p>
+                        
+                        <div class="mb-3">
+                            <span class="skill-badge">Django</span>
+                            <span class="skill-badge">PostgreSQL</span>
+                            <span class="skill-badge">API</span>
+                            <span class="skill-badge">Docker</span>
+                        </div>
+                        
+                        <div class="d-flex mt-3">
+                            <a href="#" class="social-icon me-2">
+                                <i class="fab fa-github"></i>
+                            </a>
+                            <a href="#" class="social-icon me-2">
+                                <i class="fab fa-linkedin-in"></i>
+                            </a>
+                            <a href="#" class="social-icon">
+                                <i class="fab fa-twitter"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<section class="py-5">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="fw-bold mb-3">Sıkça Sorulan Sorular</h2>
+            <p class="text-muted">Aklınıza takılan sorulara yanıt bulun</p>
+        </div>
+        
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="accordion" id="faqAccordion">
+                    <div class="accordion-item mb-3 border-0 shadow-sm">
+                        <h2 class="accordion-header" id="headingOne">
+                            <button class="accordion-button fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                                Tamir Takip sistemini nasıl kullanabilirim?
+                            </button>
+                        </h2>
+                        <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                Sistemi kullanmaya başlamak için kayıt olun ve ardından giriş yapın. Araçlarınızı ekleyebilir ve tamir süreçlerini takip edebilirsiniz. Tamirciler için de özel paneller bulunmaktadır.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item mb-3 border-0 shadow-sm">
+                        <h2 class="accordion-header" id="headingTwo">
+                            <button class="accordion-button collapsed fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                                Sistemin kullanımı ücretli mi?
+                            </button>
+                        </h2>
+                        <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                Sistemimizin temel özellikleri ücretsizdir. Daha gelişmiş özellikler için premium paketlerimiz bulunmaktadır. Detaylı bilgi için bize ulaşabilirsiniz.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item mb-3 border-0 shadow-sm">
+                        <h2 class="accordion-header" id="headingThree">
+                            <button class="accordion-button collapsed fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                                Müşteri olarak araç tamir durumumu nasıl takip edebilirim?
+                            </button>
+                        </h2>
+                        <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                Sisteme giriş yaptıktan sonra "İş Emirlerim" bölümünden araçlarınızın tamir durumunu anlık olarak takip edebilirsiniz. Ayrıca, iş emirlerinize özel notlar ekleyebilir ve tamircinizle iletişime geçebilirsiniz.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<section class="py-5 bg-primary text-white">
+    <div class="container text-center py-4">
+        <h2 class="fw-bold mb-4">Sorularınız mı var? Hemen iletişime geçin!</h2>
+        <a href="#" class="btn btn-light btn-lg px-5 py-3">
+            <i class="fas fa-phone me-2"></i> Bize Ulaşın
+        </a>
+    </div>
+</section>
+{% endblock %} 

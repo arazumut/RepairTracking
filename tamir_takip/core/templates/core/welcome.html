@@ -116,7 +116,7 @@
     </style>
 </head>
 <body>
-    <!-- Navbar -->
+
     <nav class="navbar navbar-expand-lg navbar-light fixed-top">
         <div class="container">
             <a class="navbar-brand" href="#">
@@ -135,7 +135,7 @@
                         <a class="nav-link" href="#testimonials">Referanslar</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#contact">İletişim</a>
+                        <a class="nav-link" href="{% url 'iletisim' %}">İletişim</a>
                     </li>
                     {% if user.is_authenticated %}
                     <li class="nav-item dropdown">
@@ -177,7 +177,7 @@
         </div>
     </nav>
 
-    <!-- Messages -->
+    
     {% if messages %}
     <div class="container" style="margin-top: 90px; margin-bottom: -40px;">
         {% for message in messages %}
@@ -193,7 +193,7 @@
     </div>
     {% endif %}
 
-    <!-- Hero Section -->
+    
     <section class="hero-section" style="margin-top: 76px;">
         <div class="container">
             <div class="row align-items-center">
@@ -212,7 +212,7 @@
         </div>
     </section>
 
-    <!-- Features Section -->
+    
     <section class="container" id="features">
         <div class="text-center mb-5">
             <h2 class="display-5 fw-bold">Özelliklerimiz</h2>
@@ -277,7 +277,7 @@
         </div>
     </section>
 
-    <!-- Testimonials Section -->
+    
     <section class="container mt-5" id="testimonials">
         <div class="text-center mb-5">
             <h2 class="display-5 fw-bold">Müşteri Yorumları</h2>
@@ -318,7 +318,7 @@
         </div>
     </section>
 
-    <!-- Footer -->
+    
     <footer class="footer">
         <div class="container">
             <div class="row">
@@ -329,6 +329,13 @@
                 <div class="col-md-6 text-md-end">
                     <p>© 2025 Tamir Takip (K. UMUT ARAZ) | Tüm hakları saklıdır.</p>
                 </div>
+            </div>
+            <div>
+                <a href="{% url 'iletisim' %}" class="text-decoration-none text-muted">İletişim</a>
+                &middot;
+                <a href="#" class="text-decoration-none text-muted">Gizlilik</a>
+                &middot;
+                <a href="#" class="text-decoration-none text-muted">Şartlar</a>
             </div>
         </div>
     </footer>

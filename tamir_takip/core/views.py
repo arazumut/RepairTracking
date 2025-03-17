@@ -585,6 +585,18 @@ def isemri_detay(request, isemri_id):
         'islemler': islemler
     })
 
+def iletisim(request):
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        email = request.POST.get('email')
+        subject = request.POST.get('subject')
+        message = request.POST.get('message')
+        
+        messages.success(request, 'Mesajınız başarıyla gönderildi. En kısa sürede size dönüş yapacağız.')
+        return redirect('iletisim')
+    
+    return render(request, 'core/iletisim.html')
+
 
 
 
