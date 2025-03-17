@@ -28,7 +28,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login, logout, authenticate
 from rest_framework import viewsets
-from .models import Musteri, Arac, IsEmri
+from .models import Musteri, Arac, IsEmri, IsEmriIslem
 from .serializers import MusteriSerializer, AracSerializer, IsEmriSerializer
 from django.db.models import Q 
 from django.shortcuts import get_object_or_404
@@ -36,12 +36,13 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import TemplateView
 from django import forms
 from django.contrib import messages
+from django.utils import timezone
 
 class HomeView(LoginRequiredMixin, TemplateView):
     template_name = "core/home.html"
     
     def dispatch(self, request, *args, **kwargs):
-        # Müşteri kullanıcıları için erişim kontrolü
+    
         if hasattr(request.user, 'profile') and request.user.profile.user_type == 'musteri':
             messages.warning(request, 'Bu sayfaya erişim izniniz bulunmamaktadır.')
             return redirect('musteri_portal')
@@ -87,93 +88,31 @@ def home(request):
 
 @login_required
 def musteri_portal(request):
-    # Kullanıcı tipini kontrol et
-    if hasattr(request.user, 'profile') and request.user.profile.user_type != 'musteri':
-        messages.warning(request, 'Bu sayfa sadece müşteri hesapları için erişilebilir.')
+    # Sadece müşteri tipindeki kullanıcılar erişebilir
+    if request.user.profile.user_type != 'musteri':
+        messages.error(request, 'Bu sayfaya erişim izniniz bulunmamaktadır.')
         return redirect('home')
-        
-    # Kullanıcıya bağlı müşteri kaydını bul
+    
     try:
         musteri = Musteri.objects.get(user=request.user)
-        # Müşteriye ait araçları getir
         araclar = Arac.objects.filter(musteri=musteri)
+        son_isemirleri = IsEmri.objects.filter(arac__musteri=musteri).order_by('-baslama_tarihi')[:5]
         
-        # Araçlara ait iş emirlerini getir
-        is_emirleri = {}
-        for arac in araclar:
-            is_emirleri[arac.id] = IsEmri.objects.filter(arac=arac).order_by('-baslama_tarihi')
-        
-        # Toplam iş emri sayısını hesapla
-        toplam_is_emri_sayisi = sum(len(emirler) for emirler in is_emirleri.values())
-        
-        # Tamamlanan iş emri sayısını hesapla
-        tamamlanan_is_emri_sayisi = sum(
-            len([emri for emri in emirler if emri.durum == 'tamamlandi'])
-            for emirler in is_emirleri.values()
-        )
-        
-        # Devam eden iş emri sayısını hesapla
-        devam_eden_is_emri_sayisi = sum(
-            len([emri for emri in emirler if emri.durum != 'tamamlandi'])
-            for emirler in is_emirleri.values()
-        )
-        
-        context = {
-            'musteri': musteri,
-            'araclar': araclar,
-            'is_emirleri': is_emirleri,
-            'toplam_is_emri_sayisi': toplam_is_emri_sayisi,
-            'tamamlanan_is_emri_sayisi': tamamlanan_is_emri_sayisi,
-            'devam_eden_is_emri_sayisi': devam_eden_is_emri_sayisi,
-        }
-        
-        return render(request, 'core/musteri_portal.html', context)
     except Musteri.DoesNotExist:
-        # Eğer kullanıcıya bağlı müşteri kaydı yoksa, yeni kayıt oluşturma formu göster
-        if request.method == "POST":
-            form = MusteriForm(request.POST)
-            if form.is_valid():
-                # Müşteri bilgilerini kaydet
-                musteri = form.save(commit=False)
-                musteri.user = request.user
-                musteri.save()
-                
-                # Müşteri portalından kayıt yapılıyorsa ve araç bilgileri varsa
-                if 'marka' in form.cleaned_data and 'model' in form.cleaned_data:
-                    # Araç bilgilerini kaydet
-                    arac = Arac.objects.create(
-                        musteri=musteri,
-                        marka=form.cleaned_data['marka'],
-                        model=form.cleaned_data['model'],
-                        plaka=form.cleaned_data['plaka'],
-                        uretim_yili=form.cleaned_data['uretim_yili']
-                    )
-                    
-                    # Sorun açıklaması varsa iş emri oluştur
-                    if form.cleaned_data.get('sorun_aciklama'):
-                        IsEmri.objects.create(
-                            arac=arac,
-                            aciklama=form.cleaned_data['sorun_aciklama'],
-                            durum="beklemede"
-                        )
-                
-                messages.success(request, 'Müşteri bilgileriniz başarıyla kaydedildi.')
-                return redirect('musteri_portal')
-        else:
-            form = MusteriForm()
-        
-        return render(request, 'core/musteri_form.html', {
-            'form': form, 
-            'title': 'Müşteri Bilgilerinizi Tamamlayın',
-            'is_portal': True
-        })
+        messages.error(request, 'Müşteri kaydınız bulunamadı.')
+        return redirect('home')
+    
+    return render(request, 'core/musteri_portal.html', {
+        'musteri': musteri,
+        'araclar': araclar,
+        'son_isemirleri': son_isemirleri
+    })
 
 
 @login_required
 def tamir_durum(request, pk):
     is_emri = get_object_or_404(IsEmri, pk=pk)
     
-    # Kullanıcının kendi aracına ait iş emri olup olmadığını kontrol et
     if hasattr(request.user, 'profile') and request.user.profile.user_type == 'musteri':
         try:
             musteri = Musteri.objects.get(user=request.user)
@@ -184,12 +123,10 @@ def tamir_durum(request, pk):
             messages.error(request, 'Müşteri bilgileriniz bulunamadı.')
             return redirect('musteri_portal')
     
-    # İş emrine ait notları getir (eğer bir notlar modeli varsa)
-    # notlar = IsEmriNotu.objects.filter(is_emri=is_emri).order_by('-tarih')
+
     
     context = {
         'is_emri': is_emri,
-        # 'notlar': notlar
     }
     
     return render(request, 'core/tamir_durum.html', context)
@@ -206,9 +143,26 @@ def arac_list(request):
     return render(request, "core/arac_list.html", {"araclar": araclar})
 
 
+@login_required
 def isemri_list(request):
-    is_emirleri = IsEmri.objects.all()
-    return render(request, "core/isemri_list.html", {"is_emirleri": is_emirleri})
+    # Sadece tamirci tipindeki kullanıcılar erişebilir
+    if request.user.profile.user_type != 'tamirci':
+        messages.error(request, 'Bu sayfaya erişim izniniz bulunmamaktadır.')
+        return redirect('home')
+    
+    # Durum filtreleme
+    durum = request.GET.get('durum')
+    
+    # İş emirlerini al
+    if durum:
+        isemirleri = IsEmri.objects.filter(durum=durum).order_by('-oncelik', '-olusturma_tarihi')
+    else:
+        isemirleri = IsEmri.objects.all().order_by('-oncelik', '-olusturma_tarihi')
+    
+    return render(request, 'core/isemri_list.html', {
+        'isemirleri': isemirleri,
+        'durum': durum
+    })
 
 
 
@@ -216,7 +170,7 @@ from .forms import MusteriForm, AracForm
 
 from django.shortcuts import render, redirect
 from .forms import MusteriForm
-from .models import Musteri, Arac, IsEmri
+from .models import Musteri, Arac, IsEmri, IsEmriIslem
 
 
 
@@ -236,7 +190,6 @@ def musteri_ekle(request):
                 uretim_yili=form.cleaned_data['uretim_yili']
             )
 
-            # Sorun açıklaması varsa iş emri oluştur
             if form.cleaned_data.get('sorun_aciklama'):
                 IsEmri.objects.create(
                     arac=arac,
@@ -244,7 +197,6 @@ def musteri_ekle(request):
                     durum="beklemede"
                 )
             else:
-                # Sorun açıklaması yoksa varsayılan bir açıklama ile iş emri oluştur
                 IsEmri.objects.create(
                     arac=arac,
                     aciklama=f"{form.cleaned_data['marka']} {form.cleaned_data['model']} aracı için yeni kayıt",
@@ -289,7 +241,6 @@ def register(request):
             user = form.save()
             login(request, user)
             
-            # Müşteri tipindeki kullanıcılar için müşteri portalına yönlendir
             if user.profile.user_type == 'musteri':
                 return redirect('musteri_portal')
             return redirect('home')
@@ -320,7 +271,6 @@ def arac_ekle(request):
         form = AracForm(request.POST)
         if form.is_valid():
             arac = form.save(commit=False)
-            # Eğer müşteri hesabı ise, otomatik olarak müşteriyi ata
             if request.user.profile.user_type == 'musteri':
                 try:
                     musteri = Musteri.objects.get(user=request.user)
@@ -336,7 +286,6 @@ def arac_ekle(request):
                 return redirect('arac_list')
     else:
         form = AracForm()
-        # Müşteri hesabı ise, müşteri alanını gizle
         if request.user.profile.user_type == 'musteri':
             form.fields.pop('musteri', None)
     
@@ -394,7 +343,6 @@ def isemri_sil(request, pk):
 def arac_detay(request, pk):
     arac = get_object_or_404(Arac, pk=pk)
     
-    # Müşteri kullanıcıları için erişim kontrolü
     if hasattr(request.user, 'profile') and request.user.profile.user_type == 'musteri':
         try:
             musteri = Musteri.objects.get(user=request.user)
@@ -450,7 +398,6 @@ def login_view(request):
             login(request, user)
             messages.success(request, 'Başarıyla giriş yaptınız.')
             
-            # Kullanıcı tipine göre yönlendirme
             try:
                 profile = UserProfile.objects.get(user=user)
                 if profile.user_type == 'musteri':
@@ -466,54 +413,27 @@ def login_view(request):
 
 @login_required
 def musteri_arac_ekle(request):
-    """Müşteri portalından araç ekleme view'i"""
-    # Kullanıcı tipini kontrol et
-    if hasattr(request.user, 'profile') and request.user.profile.user_type != 'musteri':
-        messages.warning(request, 'Bu işlem sadece müşteri hesapları için erişilebilir.')
-        return redirect('home')
-        
-    if request.method == "POST":
-        try:
-            musteri = Musteri.objects.get(user=request.user)
-            
-            # Form verilerini al
-            marka = request.POST.get('marka')
-            model = request.POST.get('model')
-            plaka = request.POST.get('plaka')
-            uretim_yili = request.POST.get('uretim_yili')
-            sorun_aciklama = request.POST.get('sorun_aciklama')
-            
-            # Gerekli alanların dolu olduğunu kontrol et
-            if not all([marka, model, plaka, uretim_yili]):
-                messages.error(request, 'Lütfen tüm zorunlu alanları doldurun.')
+    if request.method == 'POST':
+        form = AracForm(request.POST)
+        if form.is_valid():
+            arac = form.save(commit=False)
+            try:
+                # Doğru yaklaşım: User'dan Musteri nesnesine erişim
+                musteri = Musteri.objects.get(user=request.user)
+                arac.musteri = musteri
+            except Musteri.DoesNotExist:
+                messages.error(request, "Müşteri kaydınız bulunamadı.")
                 return redirect('musteri_portal')
             
-            # Araç oluştur
-            arac = Arac.objects.create(
-                musteri=musteri,
-                marka=marka,
-                model=model,
-                plaka=plaka,
-                uretim_yili=uretim_yili
-            )
-            
-            # İş emri oluştur (sorun açıklaması boş olsa bile)
-            aciklama = sorun_aciklama if sorun_aciklama else f"{marka} {model} aracı için yeni kayıt"
-            IsEmri.objects.create(
-                arac=arac,
-                aciklama=aciklama,
-                durum="beklemede"
-            )
-            
-            messages.success(request, f'{marka} {model} aracınız başarıyla eklendi ve iş emri oluşturuldu.')
-            return redirect('musteri_portal')
-            
-        except Musteri.DoesNotExist:
-            messages.error(request, 'Müşteri bilgileriniz bulunamadı. Lütfen önce müşteri bilgilerinizi tamamlayın.')
-            return redirect('musteri_portal')
+            arac.save()
+            messages.success(request, 'Aracınız başarıyla eklendi.')
+            return redirect('musteri_arac_list')
+    else:
+        form = AracForm()
+        # Müşteri alanını formdan kaldır
+        form.fields.pop('musteri', None)
     
-    # GET isteği için müşteri portalına yönlendir
-    return redirect('musteri_portal')
+    return render(request, 'core/musteri_arac_form.html', {'form': form})
 
 @login_required
 def musteri_arac_list(request):
@@ -528,15 +448,142 @@ def musteri_arac_list(request):
 
 @login_required
 def musteri_isemri_list(request):
-    """Müşteri iş emirleri listesi görünümü"""
+    # Sadece müşteri tipindeki kullanıcılar erişebilir
+    if request.user.profile.user_type != 'musteri':
+        messages.error(request, 'Bu sayfaya erişim izniniz bulunmamaktadır.')
+        return redirect('home')
+    
+    try:
+        musteri = Musteri.objects.get(user=request.user)
+        isemirleri = IsEmri.objects.filter(arac__musteri=musteri).order_by('-baslama_tarihi')
+    except Musteri.DoesNotExist:
+        messages.error(request, 'Müşteri kaydınız bulunamadı.')
+        return redirect('musteri_portal')
+    
+    return render(request, 'core/musteri_isemri_list.html', {
+        'isemirleri': isemirleri
+    })
+
+@login_required
+def musteri_isemri_ekle(request):
+    if request.user.profile.user_type != 'musteri':
+        messages.error(request, 'Bu sayfaya erişim izniniz bulunmamaktadır.')
+        return redirect('home')
+    
     try:
         musteri = Musteri.objects.get(user=request.user)
         araclar = Arac.objects.filter(musteri=musteri)
-        isemirleri = IsEmri.objects.filter(arac__in=araclar).order_by('-baslama_tarihi')
-        return render(request, 'core/musteri_isemri_list.html', {'isemirleri': isemirleri})
     except Musteri.DoesNotExist:
-        messages.warning(request, "Müşteri kaydınız bulunamadı.")
+        messages.error(request, 'Müşteri kaydınız bulunamadı.')
         return redirect('musteri_portal')
+    
+    if not araclar.exists():
+        messages.warning(request, 'İş emri oluşturmak için önce bir araç eklemelisiniz.')
+        return redirect('musteri_arac_ekle')
+    
+    if request.method == 'POST':
+        try:
+            arac_id = request.POST.get('arac')
+            aciklama = request.POST.get('aciklama')
+            oncelik = request.POST.get('oncelik', 'normal')
+            
+            
+            arac = Arac.objects.get(id=arac_id, musteri=musteri)
+            
+            
+            isemri = IsEmri.objects.create(
+                arac=arac,
+                aciklama=aciklama,
+                durum='beklemede',
+                baslama_tarihi=timezone.now()
+            )
+            
+            messages.success(request, f'#{isemri.id} numaralı iş emriniz başarıyla oluşturuldu.')
+            return redirect('musteri_isemri_list')
+            
+        except Arac.DoesNotExist:
+            messages.error(request, 'Geçersiz araç seçimi.')
+        except Exception as e:
+            messages.error(request, f'İş emri oluşturulurken bir hata oluştu: {str(e)}')
+    
+    return render(request, 'core/musteri_isemri_form.html', {
+        'araclar': araclar
+    })
+
+@login_required
+def musteri_isemri_iptal(request, isemri_id):
+    if request.user.profile.user_type != 'musteri':
+        messages.error(request, 'Bu sayfaya erişim izniniz bulunmamaktadır.')
+        return redirect('home')
+    
+    try:
+        musteri = Musteri.objects.get(user=request.user)
+        isemri = IsEmri.objects.get(id=isemri_id, arac__musteri=musteri)
+        
+        if isemri.durum != 'beklemede':
+            messages.error(request, 'Sadece beklemede olan iş emirleri iptal edilebilir.')
+            return redirect('musteri_isemri_detay', isemri_id=isemri_id)
+        
+        if request.method == 'POST':
+            isemri.durum = 'iptal'
+            isemri.save()
+            
+            messages.success(request, f'#{isemri.id} numaralı iş emri başarıyla iptal edildi.')
+            return redirect('musteri_isemri_list')
+        
+    except Musteri.DoesNotExist:
+        messages.error(request, 'Müşteri kaydınız bulunamadı.')
+        return redirect('musteri_portal')
+    except IsEmri.DoesNotExist:
+        messages.error(request, 'İş emri bulunamadı veya bu iş emrine erişim izniniz yok.')
+        return redirect('musteri_isemri_list')
+    
+    return redirect('musteri_isemri_detay', isemri_id=isemri_id)
+
+@login_required
+def musteri_isemri_detay(request, isemri_id):
+    
+    if request.user.profile.user_type != 'musteri':
+        messages.error(request, 'Bu sayfaya erişim izniniz bulunmamaktadır.')
+        return redirect('home')
+    
+    try:
+        musteri = Musteri.objects.get(user=request.user)
+        isemri = IsEmri.objects.get(id=isemri_id, arac__musteri=musteri)
+        
+        islemler = IsEmriIslem.objects.filter(isemri=isemri).order_by('tarih')
+        
+    except Musteri.DoesNotExist:
+        messages.error(request, 'Müşteri kaydınız bulunamadı.')
+        return redirect('musteri_portal')
+    except IsEmri.DoesNotExist:
+        messages.error(request, 'İş emri bulunamadı veya bu iş emrine erişim izniniz yok.')
+        return redirect('musteri_isemri_list')
+    
+    return render(request, 'core/musteri_isemri_detay.html', {
+        'isemri': isemri,
+        'islemler': islemler
+    })
+
+@login_required
+def isemri_detay(request, isemri_id):
+    # Sadece tamirci tipindeki kullanıcılar erişebilir
+    if request.user.profile.user_type != 'tamirci':
+        messages.error(request, 'Bu sayfaya erişim izniniz bulunmamaktadır.')
+        return redirect('home')
+    
+    try:
+        isemri = IsEmri.objects.get(id=isemri_id)
+        islemler = IsEmriIslem.objects.filter(isemri=isemri).order_by('tarih')
+        
+    except IsEmri.DoesNotExist:
+        messages.error(request, 'İş emri bulunamadı.')
+        return redirect('isemri_list')
+    
+    return render(request, 'core/isemri_detay.html', {
+        'isemri': isemri,
+        'islemler': islemler
+    })
 
 
 

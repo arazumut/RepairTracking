@@ -66,16 +66,25 @@ class IsEmri(models.Model):
         ('tamirde', 'Tamirde'),
         ('tamamlandi', 'Tamamlandı'),
     ]
+    
+    ONCELIK_SECENEKLERI = [
+        ('normal', 'Normal'),
+        ('yuksek', 'Yüksek'),
+        ('acil', 'Acil'),
+    ]
 
     arac = models.ForeignKey(Arac, on_delete=models.CASCADE, related_name='is_emirleri')
     aciklama = models.TextField()
     durum = models.CharField(max_length=20, choices=DURUM_SECENEKLERI, default='beklemede')
+    oncelik = models.CharField(max_length=10, choices=ONCELIK_SECENEKLERI, default='normal')
     teknisyen = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     baslama_tarihi = models.DateTimeField(
         verbose_name="Başlama Tarihi",
         default=timezone.now
     )
     bitis_tarihi = models.DateTimeField(null=True, blank=True, verbose_name="Bitiş Tarihi")
+    
+    olusturma_tarihi = models.DateTimeField(auto_now_add=True, verbose_name="Oluşturma Tarihi")
     
     yapilan_islemler = models.TextField(blank=True, verbose_name="Yapılan İşlemler")
     kullanilan_parcalar = models.TextField(blank=True, verbose_name="Kullanılan Parçalar")
@@ -100,3 +109,17 @@ class IsEmri(models.Model):
             from django.utils import timezone
             self.bitis_tarihi = timezone.now()
         super().save(*args, **kwargs)
+
+
+class IsEmriIslem(models.Model):
+    isemri = models.ForeignKey(IsEmri, on_delete=models.CASCADE, related_name='islemler')
+    islem_adi = models.CharField(max_length=100)
+    aciklama = models.TextField(blank=True)
+    tarih = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        verbose_name = "İş Emri İşlem"
+        verbose_name_plural = "İş Emri İşlemleri"
+        
+    def __str__(self):
+        return f"{self.isemri.id} - {self.islem_adi}"

@@ -6,8 +6,11 @@
     <div class="row mb-4">
         <div class="col-12">
             <div class="card shadow-sm">
-                <div class="card-header bg-light">
+                <div class="card-header bg-light d-flex justify-content-between align-items-center">
                     <h5 class="mb-0">İş Emirlerim</h5>
+                    <a href="{% url 'musteri_isemri_ekle' %}" class="btn btn-primary">
+                        <i class="fas fa-plus me-2"></i>Yeni İş Emri Oluştur
+                    </a>
                 </div>
                 <div class="card-body">
                     {% if isemirleri %}
@@ -17,9 +20,9 @@
                                 <tr>
                                     <th>İş Emri No</th>
                                     <th>Araç</th>
-                                    <th>Başlama Tarihi</th>
                                     <th>Durum</th>
-                                    <th>Açıklama</th>
+                                    <th>Oluşturma Tarihi</th>
+                                    <th>Tahmini Bitiş</th>
                                     <th>İşlemler</th>
                                 </tr>
                             </thead>
@@ -27,25 +30,22 @@
                                 {% for isemri in isemirleri %}
                                 <tr>
                                     <td>#{{ isemri.id }}</td>
+                                    <td>{{ isemri.arac.marka }} {{ isemri.arac.model }} ({{ isemri.arac.plaka }})</td>
                                     <td>
-                                        <a href="{% url 'arac_detay' isemri.arac.id %}">
-                                            {{ isemri.arac.marka }} {{ isemri.arac.model }} ({{ isemri.arac.plaka }})
-                                        </a>
+                                        {% if isemri.durum == 'beklemede' %}
+                                        <span class="badge bg-warning">Beklemede</span>
+                                        {% elif isemri.durum == 'devam_ediyor' %}
+                                        <span class="badge bg-info">Devam Ediyor</span>
+                                        {% elif isemri.durum == 'tamamlandi' %}
+                                        <span class="badge bg-success">Tamamlandı</span>
+                                        {% elif isemri.durum == 'iptal' %}
+                                        <span class="badge bg-danger">İptal Edildi</span>
+                                        {% endif %}
                                     </td>
-                                    <td>{{ isemri.baslama_tarihi|date:"d.m.Y H:i" }}</td>
+                                    <td>{{ isemri.baslama_tarihi|date:"d.m.Y" }}</td>
+                                    <td>{{ isemri.bitis_tarihi|date:"d.m.Y"|default:"-" }}</td>
                                     <td>
-                                        <span class="badge {% if isemri.durum == 'tamamlandi' %}bg-success{% elif isemri.durum == 'devam_ediyor' or isemri.durum == 'tamirde' or isemri.durum == 'inceleniyor' %}bg-warning{% else %}bg-secondary{% endif %}">
-                                            {% if isemri.durum == 'beklemede' %}Beklemede
-                                            {% elif isemri.durum == 'inceleniyor' %}İnceleniyor
-                                            {% elif isemri.durum == 'tamirde' %}Tamirde
-                                            {% elif isemri.durum == 'devam_ediyor' %}Devam Ediyor
-                                            {% elif isemri.durum == 'tamamlandi' %}Tamamlandı
-                                            {% endif %}
-                                        </span>
-                                    </td>
-                                    <td>{{ isemri.aciklama|truncatechars:50 }}</td>
-                                    <td>
-                                        <a href="{% url 'tamir_durum' isemri.id %}" class="btn btn-sm btn-info">
+                                        <a href="{% url 'musteri_isemri_detay' isemri.id %}" class="btn btn-sm btn-info">
                                             <i class="fas fa-eye"></i> Detay
                                         </a>
                                     </td>
@@ -56,7 +56,7 @@
                     </div>
                     {% else %}
                     <div class="alert alert-info">
-                        Henüz kayıtlı iş emriniz bulunmamaktadır.
+                        <i class="fas fa-info-circle me-2"></i> Henüz iş emriniz bulunmamaktadır.
                     </div>
                     {% endif %}
                 </div>

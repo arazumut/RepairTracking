@@ -11,6 +11,31 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log('Sidebar toggle button:', sidebarToggle);
     
     
+    function checkSidebarState() {
+        if (window.innerWidth <= 768) {
+            sidebar.classList.add('collapsed');
+            contentWrapper.classList.add('expanded');
+            navbar.classList.add('sidebar-collapsed');
+            sidebar.classList.remove('show');
+            sidebarOverlay.classList.remove('show');
+            document.body.classList.remove('sidebar-open');
+        } else {
+            const sidebarOpen = localStorage.getItem('sidebarOpen');
+            
+            if (sidebarOpen === 'false') {
+                sidebar.classList.add('collapsed');
+                contentWrapper.classList.add('expanded');
+                navbar.classList.add('sidebar-collapsed');
+            } else {
+                sidebar.classList.remove('collapsed');
+                contentWrapper.classList.remove('expanded');
+                navbar.classList.remove('sidebar-collapsed');
+            }
+        }
+    }
+    
+    checkSidebarState();
+    
     function toggleSidebar(e) {
         console.log('Toggle sidebar function called');
         if (e) {

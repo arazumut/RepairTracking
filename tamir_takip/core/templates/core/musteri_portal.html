@@ -133,48 +133,42 @@
             </div>
         </div>
         
-        <div class="col-md-6">
+        <div class="col-md-6 mb-4">
             <div class="card shadow-sm h-100">
                 <div class="card-header bg-light d-flex justify-content-between align-items-center">
                     <h5 class="mb-0">Son İş Emirleri</h5>
-                    <a href="{% url 'musteri_isemri_list' %}" class="btn btn-sm btn-outline-primary">
-                        Tümünü Gör <i class="fas fa-arrow-right ms-1"></i>
-                    </a>
+                    <a href="{% url 'musteri_isemri_list' %}" class="btn btn-sm btn-outline-primary">Tümünü Gör</a>
                 </div>
                 <div class="card-body">
-                    {% if isemirleri %}
+                    {% if son_isemirleri %}
                     <div class="list-group list-group-flush">
-                        {% for isemri in isemirleri|slice:":3" %}
-                        <a href="{% url 'tamir_durum' isemri.id %}" class="list-group-item list-group-item-action">
+                        {% for isemri in son_isemirleri %}
+                        <a href="{% url 'musteri_isemri_detay' isemri.id %}" class="list-group-item list-group-item-action">
                             <div class="d-flex w-100 justify-content-between">
-                                <h6 class="mb-1">{{ isemri.arac.marka }} {{ isemri.arac.model }} ({{ isemri.arac.plaka }})</h6>
-                                <small>{{ isemri.baslama_tarihi|date:"d.m.Y" }}</small>
+                                <h6 class="mb-1">#{{ isemri.id }} - {{ isemri.arac.marka }} {{ isemri.arac.model }}</h6>
+                                {% if isemri.durum == 'beklemede' %}
+                                <span class="badge bg-warning">Beklemede</span>
+                                {% elif isemri.durum == 'devam_ediyor' %}
+                                <span class="badge bg-info">Devam Ediyor</span>
+                                {% elif isemri.durum == 'tamamlandi' %}
+                                <span class="badge bg-success">Tamamlandı</span>
+                                {% elif isemri.durum == 'iptal' %}
+                                <span class="badge bg-danger">İptal</span>
+                                {% endif %}
                             </div>
                             <p class="mb-1 text-truncate">{{ isemri.aciklama }}</p>
-                            <div class="d-flex justify-content-between align-items-center">
-                                <small class="text-muted">İş Emri #{{ isemri.id }}</small>
-                                <span class="badge {% if isemri.durum == 'tamamlandi' %}bg-success{% elif isemri.durum == 'devam_ediyor' or isemri.durum == 'tamirde' or isemri.durum == 'inceleniyor' %}bg-warning{% else %}bg-secondary{% endif %}">
-                                    {% if isemri.durum == 'beklemede' %}Beklemede
-                                    {% elif isemri.durum == 'inceleniyor' %}İnceleniyor
-                                    {% elif isemri.durum == 'tamirde' %}Tamirde
-                                    {% elif isemri.durum == 'devam_ediyor' %}Devam Ediyor
-                                    {% elif isemri.durum == 'tamamlandi' %}Tamamlandı
-                                    {% endif %}
-                                </span>
-                            </div>
+                            <small class="text-muted">{{ isemri.baslama_tarihi|date:"d.m.Y" }}</small>
                         </a>
                         {% endfor %}
                     </div>
-                    {% if isemirleri.count > 3 %}
-                    <div class="text-center mt-3">
-                        <a href="{% url 'musteri_isemri_list' %}" class="btn btn-sm btn-outline-primary">
-                            Tümünü Gör ({{ isemirleri.count }})
-                        </a>
-                    </div>
-                    {% endif %}
                     {% else %}
                     <div class="alert alert-info">
-                        Henüz kayıtlı iş emriniz bulunmamaktadır.
+                        <i class="fas fa-info-circle me-2"></i> Henüz iş emriniz bulunmamaktadır.
+                    </div>
+                    <div class="text-center mt-3">
+                        <a href="{% url 'musteri_isemri_ekle' %}" class="btn btn-primary">
+                            <i class="fas fa-plus me-2"></i>Yeni İş Emri Oluştur
+                        </a>
                     </div>
                     {% endif %}
                 </div>
@@ -183,7 +177,7 @@
     </div>
 </div>
 
-<!-- Yeni Araç Ekleme Modal -->
+
 <div class="modal fade" id="yeniAracModal" tabindex="-1" aria-labelledby="yeniAracModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">

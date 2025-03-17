@@ -1,0 +1,95 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}Yeni İş Emri Oluştur{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-clipboard-list me-2"></i>Yeni İş Emri Oluştur
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <div class="row g-3">
+                            <div class="col-md-6 mb-3">
+                                <label for="arac" class="form-label">Araç</label>
+                                <select name="arac" id="arac" class="form-select" required>
+                                    <option value="">Araç Seçiniz</option>
+                                    {% for arac in araclar %}
+                                    <option value="{{ arac.id }}">{{ arac.marka }} {{ arac.model }} ({{ arac.plaka }})</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="oncelik" class="form-label">Öncelik</label>
+                                <select name="oncelik" id="oncelik" class="form-select">
+                                    <option value="normal">Normal</option>
+                                    <option value="yuksek">Yüksek</option>
+                                    <option value="acil">Acil</option>
+                                </select>
+                            </div>
+                            
+                            <div class="col-12 mb-3">
+                                <label for="aciklama" class="form-label">Sorun Açıklaması</label>
+                                <textarea name="aciklama" id="aciklama" rows="4" class="form-control" required></textarea>
+                                <div class="form-text">Aracınızdaki sorunu detaylı bir şekilde açıklayın.</div>
+                            </div>
+                            
+                            <div class="col-12">
+                                <div class="form-check mb-3">
+                                    <input class="form-check-input" type="checkbox" id="musteri_onay" name="musteri_onay" required>
+                                    <label class="form-check-label" for="musteri_onay">
+                                        Aracımın tamir edilmesini onaylıyorum ve gerekli işlemlerin yapılmasına izin veriyorum.
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                            <a href="{% url 'musteri_isemri_list' %}" class="btn btn-secondary me-md-2">
+                                <i class="fas fa-arrow-left me-1"></i> Geri Dön
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-1"></i> İş Emri Oluştur
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .form-control, .form-select {
+        border-radius: 0.5rem;
+        padding: 0.75rem;
+        border: 1px solid #dee2e6;
+        transition: all 0.3s ease;
+    }
+    
+    .form-control:focus, .form-select:focus {
+        border-color: #007bff;
+        box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+    }
+    
+    .btn {
+        border-radius: 0.5rem;
+        padding: 0.75rem 1.5rem;
+        transition: all 0.3s ease;
+    }
+    
+    .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+</style>
+{% endblock %} 

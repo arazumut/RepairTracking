@@ -7,7 +7,8 @@ from .views import (
     musteri_guncelle, musteri_sil, musteri_portal, tamir_durum,
     MusteriViewSet, AracViewSet, IsEmriViewSet, register, arac_ekle, isemri_ekle,
     arac_duzenle, arac_sil, isemri_duzenle, isemri_sil, arac_detay, musteri_detay,
-    logout_view, login_view, HomeView, welcome, musteri_arac_ekle, musteri_arac_list, musteri_isemri_list
+    logout_view, login_view, HomeView, welcome, musteri_arac_ekle, musteri_arac_list, musteri_isemri_list,
+    musteri_isemri_ekle, musteri_isemri_detay, musteri_isemri_iptal
 )
 from django.contrib.auth.decorators import login_required, user_passes_test
 
@@ -51,9 +52,12 @@ urlpatterns = [
 
     # Müşteri erişimi olan URL'ler
     path('musteri-portal/', login_required(musteri_portal), name='musteri_portal'),
-    path('musteri-arac-ekle/', login_required(musteri_arac_ekle), name='musteri_arac_ekle'),
+    path('musteri-arac-ekle/', views.musteri_arac_ekle, name='musteri_arac_ekle'),
     path('musteri-araclar/', login_required(musteri_arac_list), name='musteri_arac_list'),
-    path('musteri-isemirleri/', login_required(musteri_isemri_list), name='musteri_isemri_list'),
+    path('musteri-isemirleri/', views.musteri_isemri_list, name='musteri_isemri_list'),
+    path('musteri-isemri-ekle/', views.musteri_isemri_ekle, name='musteri_isemri_ekle'),
+    path('musteri-isemri/<int:isemri_id>/', views.musteri_isemri_detay, name='musteri_isemri_detay'),
+    path('musteri-isemri/<int:isemri_id>/iptal/', views.musteri_isemri_iptal, name='musteri_isemri_iptal'),
     path('tamir-durum/<int:pk>/', login_required(tamir_durum), name='tamir_durum'),
 
     # API URL'leri
