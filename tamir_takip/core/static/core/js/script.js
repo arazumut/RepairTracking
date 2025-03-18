@@ -240,4 +240,47 @@ document.addEventListener('DOMContentLoaded', function() {
             console.log('Sidebar toggle element NOT found!');
         }
     }
+
+    
+    document.addEventListener('click', function(event) {
+        if (window.innerWidth <= 768) {
+            if (!sidebar.contains(event.target) && !sidebarToggle.contains(event.target)) {
+                document.body.classList.remove('sidebar-open');
+            }
+        }
+    });
+
+    
+    document.addEventListener('click', function(event) {
+        if (window.innerWidth <= 768) {
+            const isClickInside = sidebar.contains(event.target) || 
+                                sidebarToggle.contains(event.target);
+            
+            if (!isClickInside && document.body.classList.contains('sidebar-open')) {
+                toggleSidebar();
+            }
+        }
+    });
+
+    window.addEventListener('load', function() {
+        const sidebarOpen = localStorage.getItem('sidebarOpen') === 'true';
+        if (!sidebarOpen) {
+            sidebar.classList.add('collapsed');
+            contentWrapper.classList.add('expanded');
+        }
+    });
+
+    window.addEventListener('resize', function() {
+        if (window.innerWidth <= 768) {
+            sidebar.classList.add('collapsed');
+            contentWrapper.classList.add('expanded');
+            document.body.classList.remove('sidebar-open');
+        } else {
+            const sidebarOpen = localStorage.getItem('sidebarOpen') === 'true';
+            if (sidebarOpen) {
+                sidebar.classList.remove('collapsed');
+                contentWrapper.classList.remove('expanded');
+            }
+        }
+    });
 }); 
