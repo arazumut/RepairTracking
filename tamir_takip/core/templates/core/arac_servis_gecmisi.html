@@ -1,0 +1,125 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}{{ arac.plaka }} - Servis Geçmişi{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="fas fa-history me-2"></i> {{ arac.marka }} {{ arac.model }} ({{ arac.plaka }}) - Servis Geçmişi
+                    </h5>
+                    <a href="{% url 'arac_list' %}" class="btn btn-light btn-sm">
+                        <i class="fas fa-arrow-left me-1"></i> Araçlara Dön
+                    </a>
+                </div>
+                <div class="card-body">
+                    <!-- Araç Bilgileri -->
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <h6 class="fw-bold">Araç Bilgileri</h6>
+                            <table class="table table-sm">
+                                <tr>
+                                    <th width="30%">Plaka</th>
+                                    <td>{{ arac.plaka }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Marka / Model</th>
+                                    <td>{{ arac.marka }} {{ arac.model }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Üretim Yılı</th>
+                                    <td>{{ arac.yil }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Motor No</th>
+                                    <td>{{ arac.motor_no|default:"-" }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Şasi No</th>
+                                    <td>{{ arac.sasi_no|default:"-" }}</td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="fw-bold">Müşteri Bilgileri</h6>
+                            <table class="table table-sm">
+                                <tr>
+                                    <th width="30%">İsim</th>
+                                    <td>{{ arac.musteri.ad }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Telefon</th>
+                                    <td>{{ arac.musteri.telefon }}</td>
+                                </tr>
+                                <tr>
+                                    <th>E-posta</th>
+                                    <td>{{ arac.musteri.email|default:"-" }}</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <!-- Servis Geçmişi -->
+                    <h6 class="fw-bold mb-3">Servis Kayıtları</h6>
+                    
+                    {% if isemirleri %}
+                    <div class="table-responsive">
+                        <table class="table table-hover table-striped">
+                            <thead>
+                                <tr>
+                                    <th>İş Emri No</th>
+                                    <th>Tarih</th>
+                                    <th>Açıklama</th>
+                                    <th>Durum</th>
+                                    <th>Teknisyen</th>
+                                    <th>İşlemler</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for isemri in isemirleri %}
+                                <tr>
+                                    <td>{{ isemri.id }}</td>
+                                    <td>
+                                        <div class="d-flex flex-column">
+                                            <span>{{ isemri.olusturma_tarihi|date:"d.m.Y" }}</span>
+                                            <small class="text-muted">{{ isemri.olusturma_tarihi|time:"H:i" }}</small>
+                                        </div>
+                                    </td>
+                                    <td>{{ isemri.aciklama|truncatechars:50 }}</td>
+                                    <td>
+                                        <span class="badge bg-{{ isemri.durum_renk }}">
+                                            {{ isemri.get_durum_display }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        {% if isemri.teknisyen %}
+                                            {{ isemri.teknisyen.get_full_name|default:isemri.teknisyen.username }}
+                                        {% else %}
+                                            <span class="text-muted">-</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <a href="{% url 'isemri_detay' isemri.id %}" class="btn btn-sm btn-info">
+                                            <i class="fas fa-eye"></i> Detay
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i> Bu araç için henüz servis kaydı bulunmamaktadır.
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

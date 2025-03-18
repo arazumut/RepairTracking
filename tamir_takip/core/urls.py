@@ -8,7 +8,7 @@ from .views import (
     MusteriViewSet, AracViewSet, IsEmriViewSet, register, arac_ekle, isemri_ekle,
     arac_duzenle, arac_sil, isemri_duzenle, isemri_sil, arac_detay, musteri_detay,
     logout_view, login_view, HomeView, welcome, musteri_arac_ekle, musteri_arac_list, musteri_isemri_list,
-    musteri_isemri_ekle, musteri_isemri_detay, musteri_isemri_iptal
+    musteri_isemri_ekle, musteri_isemri_detay, musteri_isemri_iptal, musteri_fatura_goruntule, musteri_fatura_indir, musteri_randevu_olustur
 )
 from django.contrib.auth.decorators import login_required, user_passes_test
 
@@ -59,4 +59,14 @@ urlpatterns = [
 
     path('api/', include(router.urls)),
     path('iletisim/', views.iletisim, name='iletisim'),
+
+    path('musteri-portali/', views.musteri_portal, name='musteri_portal'),
+    path('musteri-portali/isemri/<int:isemri_id>/', views.musteri_isemri_detay, name='musteri_isemri_detay'),
+    path('musteri-portali/fatura/<int:isemri_id>/', views.musteri_fatura_goruntule, name='musteri_fatura_goruntule'),
+    path('musteri-portali/fatura/<int:isemri_id>/indir/', views.musteri_fatura_indir, name='musteri_fatura_indir'),
+    path('musteri-portali/randevu-olustur/', views.musteri_randevu_olustur, name='musteri_randevu_olustur'),
+
+    path('is-emri/olustur/', views.isemri_olustur, name='isemri_olustur'),
+    path('is-emri/yeni/', views.isemri_olustur, name='isemri_yeni'),
+    path('isemri/ekle/', views.isemri_ekle, name='isemri_ekle'),
 ]

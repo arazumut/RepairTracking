@@ -20,7 +20,7 @@
 from django.shortcuts import render
 from .models import Musteri, UserProfile
 from django.shortcuts import render, redirect
-from .forms import MusteriForm, AracForm, IsEmriForm, UserRegisterForm
+from .forms import MusteriForm, AracForm, IsEmriForm, UserRegisterForm, RandevuForm
 from .models import IsEmri
 from .models import Arac
 from django.contrib.auth.decorators import login_required, user_passes_test
@@ -37,6 +37,9 @@ from django.views.generic import TemplateView
 from django import forms
 from django.contrib import messages
 from django.utils import timezone
+from django.http import HttpResponse, Http404
+from .models import TamirFotografi, FaturaKalemi, Randevu
+from django.db.models import Prefetch
 
 class HomeView(LoginRequiredMixin, TemplateView):
     template_name = "core/home.html"
@@ -88,25 +91,27 @@ def home(request):
 
 @login_required
 def musteri_portal(request):
-    # Sadece müşteri tipindeki kullanıcılar erişebilir
-    if request.user.profile.user_type != 'musteri':
-        messages.error(request, 'Bu sayfaya erişim izniniz bulunmamaktadır.')
-        return redirect('home')
+    # Kullanıcıya ait araçları bul
+    araclar = Arac.objects.filter(musteri__user=request.user)
     
-    try:
-        musteri = Musteri.objects.get(user=request.user)
-        araclar = Arac.objects.filter(musteri=musteri)
-        son_isemirleri = IsEmri.objects.filter(arac__musteri=musteri).order_by('-baslama_tarihi')[:5]
-        
-    except Musteri.DoesNotExist:
-        messages.error(request, 'Müşteri kaydınız bulunamadı.')
-        return redirect('home')
+    # Araçlara ait aktif ve tamamlanmış iş emirlerini bul
+    aktif_isemirler = IsEmri.objects.filter(
+        arac__in=araclar,
+        durum__in=['beklemede', 'incelemede', 'onarim_sureci', 'test_asamasi']
+    ).order_by('-olusturma_tarihi')
     
-    return render(request, 'core/musteri_portal.html', {
-        'musteri': musteri,
+    tamamlanan_isemirler = IsEmri.objects.filter(
+        arac__in=araclar,
+        durum='tamamlandi'
+    ).order_by('-bitis_tarihi')
+    
+    context = {
+        'aktif_isemirler': aktif_isemirler,
+        'tamamlanan_isemirler': tamamlanan_isemirler,
         'araclar': araclar,
-        'son_isemirleri': son_isemirleri
-    })
+    }
+    
+    return render(request, 'core/musteri_portal.html', context)
 
 
 @login_required
@@ -138,9 +143,17 @@ def musteri_list(request):
     return render(request, "core/musteri_list.html", {"musteriler": musteriler})
 
 
+@login_required
 def arac_list(request):
-    araclar = Arac.objects.all()
-    return render(request, "core/arac_list.html", {"araclar": araclar})
+    # Tüm araçları al
+    araclar = Arac.objects.all().select_related('musteri')
+    
+    # IsEmri sorgusunu her araç için yapın
+    for arac in araclar:
+        # Alt çizgi ile başlayan isim kullanmayın!
+        arac.son_islem = arac.get_son_isemri() if hasattr(arac, 'get_son_isemri') else None
+    
+    return render(request, 'core/arac_list.html', {'araclar': araclar})
 
 
 @login_required
@@ -542,28 +555,19 @@ def musteri_isemri_iptal(request, isemri_id):
 
 @login_required
 def musteri_isemri_detay(request, isemri_id):
+    # İş emrini bul ve kullanıcının erişim yetkisi olup olmadığını kontrol et
+    isemri = get_object_or_404(IsEmri, pk=isemri_id)
     
-    if request.user.profile.user_type != 'musteri':
-        messages.error(request, 'Bu sayfaya erişim izniniz bulunmamaktadır.')
-        return redirect('home')
-    
-    try:
-        musteri = Musteri.objects.get(user=request.user)
-        isemri = IsEmri.objects.get(id=isemri_id, arac__musteri=musteri)
-        
-        islemler = IsEmriIslem.objects.filter(isemri=isemri).order_by('tarih')
-        
-    except Musteri.DoesNotExist:
-        messages.error(request, 'Müşteri kaydınız bulunamadı.')
+    # Kullanıcının bu iş emrine erişim yetkisi var mı kontrol et
+    if isemri.arac.musteri.user != request.user:
+        messages.error(request, "Bu iş emrine erişim yetkiniz yok.")
         return redirect('musteri_portal')
-    except IsEmri.DoesNotExist:
-        messages.error(request, 'İş emri bulunamadı veya bu iş emrine erişim izniniz yok.')
-        return redirect('musteri_isemri_list')
     
-    return render(request, 'core/musteri_isemri_detay.html', {
+    context = {
         'isemri': isemri,
-        'islemler': islemler
-    })
+    }
+    
+    return render(request, 'core/musteri_isemri_detay.html', context)
 
 @login_required
 def isemri_detay(request, isemri_id):
@@ -596,6 +600,232 @@ def iletisim(request):
         return redirect('iletisim')
     
     return render(request, 'core/iletisim.html')
+
+@login_required
+def musteri_fatura_goruntule(request, isemri_id):
+    # İş emrini bul ve kullanıcının erişim yetkisi olup olmadığını kontrol et
+    isemri = get_object_or_404(IsEmri, pk=isemri_id, durum='tamamlandi')
+    
+    # Kullanıcının bu iş emrine erişim yetkisi var mı kontrol et
+    if isemri.arac.musteri.user != request.user:
+        messages.error(request, "Bu faturaya erişim yetkiniz yok.")
+        return redirect('musteri_portal')
+    
+    context = {
+        'isemri': isemri,
+    }
+    
+    return render(request, 'core/musteri_fatura_goruntule.html', context)
+
+@login_required
+def musteri_fatura_indir(request, isemri_id):
+    # İş emrini bul ve kullanıcının erişim yetkisi olup olmadığını kontrol et
+    isemri = get_object_or_404(IsEmri, pk=isemri_id, durum='tamamlandi')
+    
+    # Kullanıcının bu iş emrine erişim yetkisi var mı kontrol et
+    if isemri.arac.musteri.user != request.user:
+        messages.error(request, "Bu faturaya erişim yetkiniz yok.")
+        return redirect('musteri_portal')
+    
+    # PDF oluştur
+    buffer = io.BytesIO()
+    p = canvas.Canvas(buffer, pagesize=A4)
+    width, height = A4
+    
+    # Başlık
+    p.setFont("Helvetica-Bold", 18)
+    p.drawString(2*cm, height - 2*cm, f"FATURA #{isemri.id}")
+    
+    # Şirket bilgileri
+    p.setFont("Helvetica", 10)
+    p.drawString(2*cm, height - 3*cm, "Tamir Takip Sistemi")
+    p.drawString(2*cm, height - 3.4*cm, "Örnek Cad. No:123")
+    p.drawString(2*cm, height - 3.8*cm, "34000 İstanbul / Türkiye")
+    p.drawString(2*cm, height - 4.2*cm, "Tel: +90 212 555 55 55")
+    
+    # Fatura bilgileri
+    p.drawString(14*cm, height - 3*cm, f"Tarih: {isemri.tamamlanma_tarihi.strftime('%d.%m.%Y')}")
+    p.drawString(14*cm, height - 3.4*cm, f"Fatura No: {isemri.id}")
+    p.drawString(14*cm, height - 3.8*cm, f"İş Emri No: {isemri.id}")
+    
+    # Müşteri Bilgileri
+    p.setFont("Helvetica-Bold", 12)
+    p.drawString(2*cm, height - 5.5*cm, "Müşteri Bilgileri:")
+    p.setFont("Helvetica", 10)
+    p.drawString(2*cm, height - 6*cm, f"Ad Soyad: {isemri.arac.musteri.ad}")
+    p.drawString(2*cm, height - 6.4*cm, f"Telefon: {isemri.arac.musteri.telefon}")
+    
+    # Araç Bilgileri
+    p.setFont("Helvetica-Bold", 12)
+    p.drawString(10*cm, height - 5.5*cm, "Araç Bilgileri:")
+    p.setFont("Helvetica", 10)
+    p.drawString(10*cm, height - 6*cm, f"Plaka: {isemri.arac.plaka}")
+    p.drawString(10*cm, height - 6.4*cm, f"Marka/Model: {isemri.arac.marka} {isemri.arac.model}")
+    
+    # Fatura kalemleri tablosu
+    data = [["#", "Hizmet/Parça", "Açıklama", "Miktar", "Birim Fiyat", "Toplam"]]
+    
+    for idx, kalem in enumerate(isemri.kalemler.all(), 1):
+        data.append([
+            str(idx),
+            kalem.get_kalem_tipi_display(),
+            kalem.aciklama,
+            str(kalem.miktar),
+            f"{kalem.birim_fiyat} ₺",
+            f"{kalem.toplam_fiyat} ₺"
+        ])
+    
+    # Toplam satırları
+    data.append(["", "", "", "", "Ara Toplam:", f"{isemri.ara_toplam} ₺"])
+    data.append(["", "", "", "", "KDV (%18):", f"{isemri.kdv_tutari} ₺"])
+    data.append(["", "", "", "", "Genel Toplam:", f"{isemri.toplam_tutar} ₺"])
+    
+    # Tabloyu çiz
+    table = Table(data, colWidths=[1*cm, 3*cm, 6*cm, 2*cm, 2.5*cm, 2.5*cm])
+    table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+        ('ALIGN', (0, 0), (-1, 0), 'CENTER'),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('FONTSIZE', (0, 0), (-1, 0), 10),
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+        ('BACKGROUND', (0, 1), (-1, -4), colors.white),
+        ('BACKGROUND', (0, -3), (-1, -1), colors.lightgrey),
+        ('FONTNAME', (4, -3), (5, -1), 'Helvetica-Bold'),
+        ('GRID', (0, 0), (-1, -1), 1, colors.black),
+        ('ALIGN', (3, 1), (5, -1), 'RIGHT'),
+    ]))
+    
+    table.wrapOn(p, width, height)
+    table.drawOn(p, 1.5*cm, height - 15*cm)
+    
+    # Not
+    p.setFont("Helvetica-Bold", 10)
+    p.drawString(2*cm, height - 18*cm, "Notlar:")
+    p.setFont("Helvetica", 8)
+    p.drawString(2*cm, height - 18.5*cm, "1. Tüm tamir işlemleri 3 ay garantilidir.")
+    p.drawString(2*cm, height - 19*cm, "2. Yedek parçalar üretici garantisi kapsamındadır.")
+    p.drawString(2*cm, height - 19.5*cm, "3. Ödeme fatura tarihinden itibaren 7 gün içinde yapılmalıdır.")
+    
+    p.showPage()
+    p.save()
+    
+    buffer.seek(0)
+    response = HttpResponse(buffer, content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="fatura_{isemri.id}.pdf"'
+    
+    return response
+
+@login_required
+def musteri_randevu_olustur(request):
+    # Kullanıcıya ait araçları bul
+    araclar = Arac.objects.filter(musteri__user=request.user)
+    
+    if not araclar.exists():
+        messages.warning(request, "Randevu oluşturmak için önce bir araç eklemelisiniz.")
+        return redirect('arac_ekle')
+    
+    if request.method == 'POST':
+        form = RandevuForm(request.POST, user=request.user)
+        if form.is_valid():
+            randevu = form.save(commit=False)
+            randevu.musteri = request.user
+            randevu.save()
+            
+            messages.success(request, "Randevunuz başarıyla oluşturuldu. En kısa sürede onaylanacaktır.")
+            return redirect('musteri_portal')
+    else:
+        form = RandevuForm(user=request.user)
+    
+    return render(request, 'core/musteri_randevu_olustur.html', {'form': form})
+
+@login_required
+def musteri_araclar(request):
+    # Kullanıcıya ait araçları al
+    araclar = Arac.objects.filter(musteri__user=request.user).select_related('musteri').prefetch_related(
+        Prefetch('isemirleri', queryset=IsEmri.objects.order_by('-olusturma_tarihi'), to_attr='son_isemriler')
+    )
+    
+    # Her araca son iş emrini ekle
+    for arac in araclar:
+        if hasattr(arac, 'son_isemriler') and arac.son_isemriler:
+            arac.son_isemri = arac.son_isemriler[0]
+        else:
+            arac.son_isemri = None
+    
+    return render(request, 'core/musteri_araclar.html', {'araclar': araclar})
+
+@login_required
+def arac_list(request):
+    # Tüm araçları al (ama prefetch yapmadan)
+    araclar = Arac.objects.all().select_related('musteri')
+    
+    # Her aracın son iş emrini bul
+    for arac in araclar:
+        # IsEmri modelinde arac alanı için related_name ne ise onu kullanın
+        # Örnek: isemirleri, is_emirleri, tamir_talepleri vb.
+        try:
+            arac.son_isemri = IsEmri.objects.filter(arac=arac).order_by('-olusturma_tarihi').first()
+        except:
+            arac.son_isemri = None
+    
+    return render(request, 'core/arac_list.html', {'araclar': araclar})
+
+@login_required
+def isemri_olustur(request):
+    """Yeni iş emri oluşturma fonksiyonu"""
+    if request.method == 'POST':
+        form = IsEmriForm(request.POST)
+        if form.is_valid():
+            isemri = form.save(commit=False)
+            # Eğer teknisyen atama işlemi yapılacaksa:
+            # isemri.teknisyen = request.user
+            isemri.save()
+            messages.success(request, 'İş emri başarıyla oluşturuldu.')
+            return redirect('isemri_detay', isemri_id=isemri.id)
+    else:
+        # Formun ilk gösteriminde yapılacak işlemler
+        initial = {}
+        # URL'den araç id'si geldiyse, formu o araçla doldurun
+        arac_id = request.GET.get('arac')
+        if arac_id:
+            try:
+                arac = Arac.objects.get(id=arac_id)
+                initial['arac'] = arac
+            except Arac.DoesNotExist:
+                pass
+        
+        form = IsEmriForm(initial=initial)
+    
+    return render(request, 'core/isemri_form.html', {
+        'form': form,
+        'is_new': True,
+        'title': 'Yeni İş Emri Oluştur'
+    })
+
+@login_required
+def arac_servis_gecmisi(request, arac_id):
+    """Araç servis geçmişini görüntüle"""
+    arac = get_object_or_404(Arac, id=arac_id)
+    
+    
+    try:
+        # İş emirlerini alın
+        if hasattr(arac, 'isemirleri'):
+            isemirleri = arac.isemirleri.all().order_by('-olusturma_tarihi')
+        elif hasattr(arac, 'isemri_set'):
+            isemirleri = arac.isemri_set.all().order_by('-olusturma_tarihi')
+        else:
+            
+            isemirleri = IsEmri.objects.filter(arac=arac).order_by('-olusturma_tarihi')
+    except Exception as e:
+        print(f"Hata: {e}")
+        isemirleri = []
+    
+    return render(request, 'core/arac_servis_gecmisi.html', {
+        'arac': arac,
+        'isemirleri': isemirleri
+    })
 
 
 

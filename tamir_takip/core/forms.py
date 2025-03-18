@@ -1,9 +1,11 @@
 from django import forms
-from .models import Musteri, Arac, IsEmri, UserProfile
+from .models import Musteri, Arac, IsEmri, UserProfile, Randevu
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
+from django.utils import timezone
+import datetime
 
 
 class UserRegisterForm(UserCreationForm):
@@ -63,16 +65,12 @@ class AracForm(forms.ModelForm):
 class IsEmriForm(forms.ModelForm):
     class Meta:
         model = IsEmri
-        fields = ['arac', 'aciklama', 'durum', 'teknisyen', 'yapilan_islemler', 
-                 'kullanilan_parcalar', 'toplam_maliyet', 'kilometre', 'notlar', 
-                 'baslama_tarihi', 'bitis_tarihi']
+        fields = ['arac', 'aciklama', 'durum', 'oncelik']
         widgets = {
-            'baslama_tarihi': forms.DateTimeInput(attrs={'type': 'datetime-local'}),
-            'bitis_tarihi': forms.DateTimeInput(attrs={'type': 'datetime-local'}),
-            'aciklama': forms.Textarea(attrs={'rows': 3}),
-            'yapilan_islemler': forms.Textarea(attrs={'rows': 3}),
-            'kullanilan_parcalar': forms.Textarea(attrs={'rows': 3}),
-            'notlar': forms.Textarea(attrs={'rows': 3}),
+            'arac': forms.Select(attrs={'class': 'form-select'}),
+            'aciklama': forms.Textarea(attrs={'class': 'form-control', 'rows': 4}),
+            'durum': forms.Select(attrs={'class': 'form-select'}),
+            'oncelik': forms.Select(attrs={'class': 'form-select'}),
         }
 
     def __init__(self, *args, **kwargs):
@@ -80,3 +78,47 @@ class IsEmriForm(forms.ModelForm):
         self.helper = FormHelper()
         self.helper.form_method = "post"
         self.helper.add_input(Submit("submit", "Kaydet"))
+
+class RandevuForm(forms.ModelForm):
+    class Meta:
+        model = Randevu
+        fields = ['arac', 'randevu_tarihi', 'randevu_saati', 'ariza_aciklamasi', 'randevu_tipi', 'iletisim_tercihi', 'onay']
+        widgets = {
+            'arac': forms.Select(attrs={'class': 'form-select'}),
+            'randevu_tarihi': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+            'randevu_saati': forms.TimeInput(attrs={'class': 'form-control', 'type': 'time'}),
+            'ariza_aciklamasi': forms.Textarea(attrs={'class': 'form-control', 'rows': 4}),
+            'randevu_tipi': forms.Select(attrs={'class': 'form-select'}),
+            'iletisim_tercihi': forms.Select(attrs={'class': 'form-select'}),
+            'onay': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+        }
+    
+    def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user', None)
+        super(RandevuForm, self).__init__(*args, **kwargs)
+        
+        # Kullanıcıya ait araçları filtrele
+        if user:
+            self.fields['arac'].queryset = Arac.objects.filter(musteri__user=user)
+    
+    def clean_randevu_tarihi(self):
+        randevu_tarihi = self.cleaned_data.get('randevu_tarihi')
+        bugun = timezone.now().date()
+        
+        if randevu_tarihi < bugun + datetime.timedelta(days=1):
+            raise forms.ValidationError('Randevu tarihi en az yarın olmalıdır.')
+        
+        # Hafta sonu kontrolü
+        if randevu_tarihi.weekday() >= 5:  # 5=Cumartesi, 6=Pazar
+            raise forms.ValidationError('Hafta sonu randevu alınamaz.')
+        
+        return randevu_tarihi
+    
+    def clean_randevu_saati(self):
+        randevu_saati = self.cleaned_data.get('randevu_saati')
+        
+        # Çalışma saatleri kontrolü
+        if randevu_saati.hour < 9 or randevu_saati.hour >= 18:
+            raise forms.ValidationError('Randevu saati 09:00 - 18:00 arasında olmalıdır.')
+        
+        return randevu_saati

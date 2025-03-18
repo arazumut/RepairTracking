@@ -1,0 +1,172 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}Randevu Oluştur - Tamir Takip Sistemi{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="fas fa-calendar-plus me-2"></i> Randevu Oluştur</h5>
+                    <a href="{% url 'musteri_portal' %}" class="btn btn-light btn-sm">
+                        <i class="fas fa-arrow-left me-1"></i> Geri Dön
+                    </a>
+                </div>
+                <div class="card-body p-4">
+                    <p class="text-muted mb-4">Aracınız için uygun gün ve saat seçerek randevu oluşturabilirsiniz.</p>
+                    
+                    <form method="post" class="needs-validation" novalidate>
+                        {% csrf_token %}
+                        
+                        {% if form.non_field_errors %}
+                        <div class="alert alert-danger">
+                            {% for error in form.non_field_errors %}
+                            {{ error }}
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                        
+                        <div class="mb-4">
+                            <label for="{{ form.arac.id_for_label }}" class="form-label">Araç</label>
+                            {{ form.arac }}
+                            {% if form.arac.errors %}
+                            <div class="text-danger mt-1">
+                                {% for error in form.arac.errors %}
+                                {{ error }}
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                            {% if form.arac.help_text %}
+                            <div class="form-text">{{ form.arac.help_text }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <label for="id_randevu_tarihi" class="form-label">Randevu Tarihi</label>
+                                {{ form.randevu_tarihi }}
+                                {% if form.randevu_tarihi.errors %}
+                                <div class="text-danger mt-1">
+                                    {% for error in form.randevu_tarihi.errors %}
+                                    {{ error }}
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <label for="id_randevu_saati" class="form-label">Randevu Saati</label>
+                                {{ form.randevu_saati }}
+                                {% if form.randevu_saati.errors %}
+                                <div class="text-danger mt-1">
+                                    {% for error in form.randevu_saati.errors %}
+                                    {{ error }}
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label for="{{ form.ariza_aciklamasi.id_for_label }}" class="form-label">Arıza Açıklaması</label>
+                            {{ form.ariza_aciklamasi }}
+                            {% if form.ariza_aciklamasi.errors %}
+                            <div class="text-danger mt-1">
+                                {% for error in form.ariza_aciklamasi.errors %}
+                                {{ error }}
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                            <div class="form-text">Lütfen aracınızdaki arızayı detaylı bir şekilde açıklayın.</div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label for="{{ form.randevu_tipi.id_for_label }}" class="form-label">Randevu Tipi</label>
+                            {{ form.randevu_tipi }}
+                            {% if form.randevu_tipi.errors %}
+                            <div class="text-danger mt-1">
+                                {% for error in form.randevu_tipi.errors %}
+                                {{ error }}
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label for="{{ form.iletisim_tercihi.id_for_label }}" class="form-label">İletişim Tercihi</label>
+                            {{ form.iletisim_tercihi }}
+                            {% if form.iletisim_tercihi.errors %}
+                            <div class="text-danger mt-1">
+                                {% for error in form.iletisim_tercihi.errors %}
+                                {{ error }}
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-4">
+                            <div class="form-check">
+                                {{ form.onay }}
+                                <label class="form-check-label" for="{{ form.onay.id_for_label }}">
+                                    Randevu politikasını okudum ve kabul ediyorum. Randevuma gelmemem durumunda 50₺ ücret yansıtılabileceğini biliyorum.
+                                </label>
+                                {% if form.onay.errors %}
+                                <div class="text-danger mt-1">
+                                    {% for error in form.onay.errors %}
+                                    {{ error }}
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="text-center">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-save me-2"></i> Randevu Oluştur
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <div class="card mt-4 shadow-sm">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i> Randevu Bilgilendirmesi</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="mb-0">
+                        <li>Randevular en az 24 saat önceden oluşturulmalıdır.</li>
+                        <li>Randevunuzu en az 4 saat önceden iptal edebilirsiniz.</li>
+                        <li>Randevuya gelirken aracın ruhsatını yanınızda bulundurunuz.</li>
+                        <li>Servisimiz hafta içi 08:30 - 18:00, cumartesi 09:00 - 15:00 saatleri arasında hizmet vermektedir.</li>
+                        <li>Randevu saatinden 15 dakika önce servisimize gelmenizi öneririz.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Tarih seçici için min tarih ayarı (bugün + 1 gün)
+        var tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        var minDate = tomorrow.toISOString().split('T')[0];
+        document.getElementById('id_randevu_tarihi').setAttribute('min', minDate);
+        
+        // Form doğrulama
+        var forms = document.querySelectorAll('.needs-validation');
+        Array.prototype.slice.call(forms).forEach(function(form) {
+            form.addEventListener('submit', function(event) {
+                if (!form.checkValidity()) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+                form.classList.add('was-validated');
+            }, false);
+        });
+    });
+</script>
+{% endblock %} 
