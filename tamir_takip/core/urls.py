@@ -35,7 +35,7 @@ urlpatterns = [
     path('musteri-ekle/', login_required(tamirci_required(musteri_ekle)), name='musteri_ekle'),
     path('musteri-guncelle/<int:pk>/', login_required(tamirci_required(musteri_guncelle)), name='musteri_guncelle'),
     path('musteri-sil/<int:pk>/', login_required(tamirci_required(musteri_sil)), name='musteri_sil'),
-    path('musteri/<int:pk>/detay/', login_required(tamirci_required(musteri_detay)), name='musteri_detay'),
+    path('musteri/<int:pk>/detay/', musteri_detay, name='musteri_detay'),
 
     path('araclar/', login_required(tamirci_required(arac_list)), name='arac_list'),
     path('arac-ekle/', login_required(tamirci_required(arac_ekle)), name='arac_ekle'),

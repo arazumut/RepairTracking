@@ -251,11 +251,52 @@ def register(request):
     if request.method == 'POST':
         form = UserRegisterForm(request.POST)
         if form.is_valid():
-            user = form.save()
-            login(request, user)
+            user = form.save(commit=False)
+            user.email = form.cleaned_data['email']
+            user.save()
             
-            if user.profile.user_type == 'musteri':
-                return redirect('musteri_portal')
+            # UserProfile oluşturma işlemi
+            user_type = form.cleaned_data.get('user_type')
+            
+            # Eğer profil otomatik oluşmadıysa oluştur
+            if not hasattr(user, 'profile'):
+                UserProfile.objects.create(
+                    user=user,
+                    user_type=user_type
+                )
+            else:
+                # Eğer profil otomatik oluştuysa sadece tipini güncelle
+                user.profile.user_type = user_type
+                user.profile.save()
+            
+            # Eğer müşteri tipinde kayıt olunduysa, Musteri modelinde de kayıt oluştur
+            if user_type == 'musteri':
+                # Telefon ve adres alanları için varsayılan değerler
+                telefon = "Belirtilmedi"
+                adres = "Belirtilmedi"
+                
+                # Kullanıcı adından bir isim oluştur (daha iyi bir yöntem eklenebilir)
+                ad = user.first_name + ' ' + user.last_name if (user.first_name and user.last_name) else user.username
+                
+                # Aynı kullanıcı ile ilişkili müşteri kaydı var mı kontrol et
+                musteri, created = Musteri.objects.get_or_create(
+                    user=user,
+                    defaults={
+                        'ad': ad,
+                        'telefon': telefon,
+                        'adres': adres,
+                        'email': user.email
+                    }
+                )
+                
+                if created:
+                    messages.success(request, 'Hesabınız ve müşteri profiliniz başarıyla oluşturuldu!')
+                else:
+                    messages.info(request, 'Hesabınız oluşturuldu, mevcut müşteri profiliniz kullanılacak.')
+            else:
+                messages.success(request, 'Hesabınız başarıyla oluşturuldu!')
+                
+            login(request, user)
             return redirect('home')
     else:
         form = UserRegisterForm()
@@ -375,26 +416,27 @@ def arac_detay(request, pk):
     return render(request, 'core/arac_detay.html', context)
 
 def musteri_detay(request, pk):
-    musteri = get_object_or_404(Musteri, pk=pk)
-    araclar = Arac.objects.filter(musteri=musteri).prefetch_related('is_emirleri')
+    musteri = get_object_or_404(Musteri, id=pk)
     
-    if request.method == "POST":
+    # İlişki adını doğru şekilde kullan
+    araclar = Arac.objects.filter(musteri=musteri).prefetch_related('isemirleri')
+    
+    if request.method == 'POST':
         form = AracForm(request.POST)
         if form.is_valid():
             arac = form.save(commit=False)
             arac.musteri = musteri
             arac.save()
-            return redirect('musteri_detay', pk=musteri.pk)
+            messages.success(request, 'Araç başarıyla eklendi.')
+            return redirect('musteri_detay', pk=musteri.id)
     else:
         form = AracForm(initial={'musteri': musteri})
-        form.fields['musteri'].widget = forms.HiddenInput()
     
-    context = {
+    return render(request, 'core/musteri_detay.html', {
         'musteri': musteri,
         'araclar': araclar,
         'form': form
-    }
-    return render(request, 'core/musteri_detay.html', context)
+    })
 
 def logout_view(request):
     logout(request)
@@ -718,7 +760,7 @@ def musteri_fatura_indir(request, isemri_id):
 
 @login_required
 def musteri_randevu_olustur(request):
-    # Kullanıcıya ait araçları bul
+    
     araclar = Arac.objects.filter(musteri__user=request.user)
     
     if not araclar.exists():
@@ -778,15 +820,12 @@ def isemri_olustur(request):
         form = IsEmriForm(request.POST)
         if form.is_valid():
             isemri = form.save(commit=False)
-            # Eğer teknisyen atama işlemi yapılacaksa:
-            # isemri.teknisyen = request.user
             isemri.save()
             messages.success(request, 'İş emri başarıyla oluşturuldu.')
             return redirect('isemri_detay', isemri_id=isemri.id)
     else:
-        # Formun ilk gösteriminde yapılacak işlemler
         initial = {}
-        # URL'den araç id'si geldiyse, formu o araçla doldurun
+        
         arac_id = request.GET.get('arac')
         if arac_id:
             try:
