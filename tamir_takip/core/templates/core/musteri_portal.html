@@ -2,219 +2,137 @@
 {% load static %}
 {% load custom_filters %}
 
-{% block title %}Müşteri Portalı{% endblock %}
+{% block title %}Müşteri Portalı - Tamir Takip Sistemi{% endblock %}
 
 {% block content %}
-<div class="container-fluid py-4">
+<div class="container py-4">
     <div class="row mb-4">
         <div class="col-12">
-            <div class="card">
+            <div class="card shadow-sm">
                 <div class="card-header bg-primary text-white">
-                    <h4 class="mb-0"><i class="fas fa-user me-2"></i>Müşteri Bilgileri</h4>
+                    <h5 class="mb-0"><i class="fas fa-user me-2"></i> Hoş Geldiniz, {{ user.first_name|default:user.username }}</h5>
                 </div>
                 <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <h5 class="text-muted">Kişisel Bilgiler</h5>
-                            <table class="table table-borderless">
-                                <tr>
-                                    <th width="30%">Ad Soyad:</th>
-                                    <td>{{ musteri.ad }}</td>
-                                </tr>
-                                <tr>
-                                    <th>Telefon:</th>
-                                    <td>{{ musteri.telefon }}</td>
-                                </tr>
-                                <tr>
-                                    <th>E-posta:</th>
-                                    <td>{{ musteri.email }}</td>
-                                </tr>
-                            </table>
-                        </div>
-                        <div class="col-md-6">
-                            <h5 class="text-muted">Adres Bilgileri</h5>
-                            <table class="table table-borderless">
-                                <tr>
-                                    <th width="30%">Adres:</th>
-                                    <td>{{ musteri.adres }}</td>
-                                </tr>
-                            </table>
-                        </div>
+                    <p>Araçlarınızın tamir durumunu takip edebilir, geçmiş tamir işlemlerinizi görüntüleyebilir ve randevu talep edebilirsiniz.</p>
+                    
+                    <div class="d-flex flex-wrap gap-2">
+                        <a href="#active-repairs" class="btn btn-outline-primary">
+                            <i class="fas fa-tools me-2"></i>Aktif Tamirler
+                        </a>
+                        <a href="#repair-history" class="btn btn-outline-secondary">
+                            <i class="fas fa-history me-2"></i>Tamir Geçmişi
+                        </a>
+                        <a href="{% url 'musteri_randevu_olustur' %}" class="btn btn-outline-success">
+                            <i class="fas fa-calendar-plus me-2"></i>Randevu Oluştur
+                        </a>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+    
 
-    <div class="row mb-4">
-        <div class="col-md-4">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-body">
-                    <div class="d-flex align-items-center">
-                        <div class="bg-primary rounded-circle p-3 me-3">
-                            <i class="fas fa-car text-white"></i>
-                        </div>
-                        <div>
-                            <h6 class="text-muted mb-1">Toplam Araç</h6>
-                            <h3 class="mb-0">{{ araclar|length }}</h3>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-body">
-                    <div class="d-flex align-items-center">
-                        <div class="bg-success rounded-circle p-3 me-3">
-                            <i class="fas fa-check-circle text-white"></i>
-                        </div>
-                        <div>
-                            <h6 class="text-muted mb-1">Tamamlanan İşler</h6>
-                            <h3 class="mb-0">{{ tamamlanan_is_emri_sayisi }}</h3>
-                            <a href="{% url 'musteri_isemri_list' %}" class="btn btn-sm btn-outline-primary">Tümünü Gör</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-body">
-                    <div class="d-flex align-items-center">
-                        <div class="bg-warning rounded-circle p-3 me-3">
-                            <i class="fas fa-tools text-white"></i>
-                        </div>
-                        <div>
-                            <h6 class="text-muted mb-1">Devam Eden İşler</h6>
-                            <h3 class="mb-0">{{ devam_eden_is_emri_sayisi }}</h3>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="row mb-4">
-        <div class="col-md-6 mb-3 mb-md-0">
-            <div class="card shadow-sm h-100">
-                <div class="card-header bg-light d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0">Araçlarım</h5>
-                    <a href="{% url 'musteri_arac_list' %}" class="btn btn-sm btn-outline-primary">
-                        Tümünü Gör <i class="fas fa-arrow-right ms-1"></i>
-                    </a>
+    <div class="row mb-4" id="active-repairs">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-tools me-2"></i>Aktif Tamirler</h5>
                 </div>
                 <div class="card-body">
-                    {% if araclar %}
-                    <div class="list-group list-group-flush">
-                        {% for arac in araclar|slice:":3" %}
-                        <a href="{% url 'arac_detay' arac.id %}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
-                            <div>
-                                <h6 class="mb-0">{{ arac.marka }} {{ arac.model }}</h6>
-                                <small class="text-muted">{{ arac.plaka }}</small>
-                            </div>
-                            <span class="badge bg-primary rounded-pill">{{ arac.isemri_set.count }} İşlem</span>
-                        </a>
-                        {% endfor %}
-                    </div>
-                    {% if araclar.count > 3 %}
-                    <div class="text-center mt-3">
-                        <a href="{% url 'musteri_arac_list' %}" class="btn btn-sm btn-outline-primary">
-                            Tümünü Gör ({{ araclar.count }})
-                        </a>
-                    </div>
-                    {% endif %}
-                    {% else %}
-                    <div class="alert alert-info">
-                        Henüz kayıtlı aracınız bulunmamaktadır. <a href="{% url 'arac_ekle' %}" class="alert-link">Yeni araç eklemek için tıklayın</a>.
-                    </div>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
-        
-        <div class="col-md-6 mb-4">
-            <div class="card shadow-sm h-100">
-                <div class="card-header bg-light d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0">Son İş Emirleri</h5>
-                    <a href="{% url 'musteri_isemri_list' %}" class="btn btn-sm btn-outline-primary">Tümünü Gör</a>
-                </div>
-                <div class="card-body">
-                    {% if son_isemirleri %}
-                    <div class="list-group list-group-flush">
-                        {% for isemri in son_isemirleri %}
-                        <a href="{% url 'musteri_isemri_detay' isemri.id %}" class="list-group-item list-group-item-action">
-                            <div class="d-flex w-100 justify-content-between">
-                                <h6 class="mb-1">#{{ isemri.id }} - {{ isemri.arac.marka }} {{ isemri.arac.model }}</h6>
-                                {% if isemri.durum == 'beklemede' %}
-                                <span class="badge bg-warning">Beklemede</span>
-                                {% elif isemri.durum == 'devam_ediyor' %}
-                                <span class="badge bg-info">Devam Ediyor</span>
-                                {% elif isemri.durum == 'tamamlandi' %}
-                                <span class="badge bg-success">Tamamlandı</span>
-                                {% elif isemri.durum == 'iptal' %}
-                                <span class="badge bg-danger">İptal</span>
-                                {% endif %}
-                            </div>
-                            <p class="mb-1 text-truncate">{{ isemri.aciklama }}</p>
-                            <small class="text-muted">{{ isemri.baslama_tarihi|date:"d.m.Y" }}</small>
-                        </a>
-                        {% endfor %}
+                    {% if aktif_isemirler %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>İş Emri No</th>
+                                    <th>Araç</th>
+                                    <th>Açıklama</th>
+                                    <th>Durum</th>
+                                    <th>Tahmini Tamamlanma</th>
+                                    <th>İşlemler</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for isemri in aktif_isemirler %}
+                                <tr>
+                                    <td>{{ isemri.id }}</td>
+                                    <td>{{ isemri.arac.marka }} {{ isemri.arac.model }} - {{ isemri.arac.plaka }}</td>
+                                    <td>{{ isemri.aciklama|truncatechars:50 }}</td>
+                                    <td>
+                                        <span class="badge bg-{{ isemri.durum_renk }}">{{ isemri.get_durum_display }}</span>
+                                    </td>
+                                    <td>{{ isemri.tahmini_tamamlanma_tarihi|default:"Belirtilmemiş" }}</td>
+                                    <td>
+                                        <a href="{% url 'musteri_isemri_detay' isemri.id %}" class="btn btn-sm btn-info">
+                                            <i class="fas fa-eye"></i> Detay
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
                     </div>
                     {% else %}
                     <div class="alert alert-info">
-                        <i class="fas fa-info-circle me-2"></i> Henüz iş emriniz bulunmamaktadır.
-                    </div>
-                    <div class="text-center mt-3">
-                        <a href="{% url 'musteri_isemri_ekle' %}" class="btn btn-primary">
-                            <i class="fas fa-plus me-2"></i>Yeni İş Emri Oluştur
-                        </a>
+                        <i class="fas fa-info-circle me-2"></i> Şu anda aktif tamir işleminiz bulunmamaktadır.
                     </div>
                     {% endif %}
                 </div>
             </div>
         </div>
     </div>
-</div>
-
-
-<div class="modal fade" id="yeniAracModal" tabindex="-1" aria-labelledby="yeniAracModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header bg-primary text-white">
-                <h5 class="modal-title" id="yeniAracModalLabel"><i class="fas fa-car me-2"></i>Yeni Araç Ekle</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+    
+    
+    <div class="row" id="repair-history">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-history me-2"></i>Tamir Geçmişi</h5>
+                </div>
+                <div class="card-body">
+                    {% if tamamlanan_isemirler %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>İş Emri No</th>
+                                    <th>Araç</th>
+                                    <th>Açıklama</th>
+                                    <th>Tamamlanma Tarihi</th>
+                                    <th>Toplam Tutar</th>
+                                    <th>İşlemler</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for isemri in tamamlanan_isemirler %}
+                                <tr>
+                                    <td>{{ isemri.id }}</td>
+                                    <td>{{ isemri.arac.marka }} {{ isemri.arac.model }} - {{ isemri.arac.plaka }}</td>
+                                    <td>{{ isemri.aciklama|truncatechars:50 }}</td>
+                                    <td>{{ isemri.tamamlanma_tarihi }}</td>
+                                    <td>{{ isemri.toplam_tutar }} ₺</td>
+                                    <td>
+                                        <div class="btn-group">
+                                            <a href="{% url 'musteri_isemri_detay' isemri.id %}" class="btn btn-sm btn-info">
+                                                <i class="fas fa-eye"></i> Detay
+                                            </a>
+                                            <a href="{% url 'musteri_fatura_goruntule' isemri.id %}" class="btn btn-sm btn-secondary">
+                                                <i class="fas fa-file-invoice"></i> Fatura
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i> Geçmiş tamir işleminiz bulunmamaktadır.
+                    </div>
+                    {% endif %}
+                </div>
             </div>
-            <form method="post" action="{% url 'musteri_arac_ekle' %}">
-                {% csrf_token %}
-                <div class="modal-body">
-                    <div class="mb-3">
-                        <label for="marka" class="form-label">Marka</label>
-                        <input type="text" class="form-control" id="marka" name="marka" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="model" class="form-label">Model</label>
-                        <input type="text" class="form-control" id="model" name="model" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="plaka" class="form-label">Plaka</label>
-                        <input type="text" class="form-control" id="plaka" name="plaka" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="uretim_yili" class="form-label">Üretim Yılı</label>
-                        <input type="number" class="form-control" id="uretim_yili" name="uretim_yili" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="sorun_aciklama" class="form-label">Sorun Açıklaması (İsteğe Bağlı)</label>
-                        <textarea class="form-control" id="sorun_aciklama" name="sorun_aciklama" rows="3"></textarea>
-                        <div class="form-text">Aracınızla ilgili bir sorun varsa belirtebilirsiniz. Bu bilgi iş emri oluşturmak için kullanılacaktır.</div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
-                    <button type="submit" class="btn btn-primary">Kaydet</button>
-                </div>
-            </form>
         </div>
     </div>
 </div>

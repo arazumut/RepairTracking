@@ -1,0 +1,165 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}Fatura #{{ isemri.id }} - Tamir Takip Sistemi{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="fas fa-file-invoice me-2"></i> Fatura #{{ isemri.id }}</h5>
+                    <div>
+                        <a href="{% url 'musteri_isemri_detay' isemri.id %}" class="btn btn-light btn-sm me-2">
+                            <i class="fas fa-arrow-left me-1"></i> Detaya Dön
+                        </a>
+                        <a href="{% url 'musteri_fatura_indir' isemri.id %}" class="btn btn-light btn-sm">
+                            <i class="fas fa-download me-1"></i> PDF İndir
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body p-4">
+                    <div class="invoice-container border rounded p-4">
+                    
+                        <div class="row mb-4">
+                            <div class="col-6">
+                                <h4 class="mb-0">Tamir Takip Sistemi</h4>
+                                <p class="mb-0">Örnek Cad. No:123</p>
+                                <p class="mb-0">42560 Konya / Türkiye</p>
+                                <p class="mb-0">Tel: +90 212 555 55 55</p>
+                                <p class="mb-0">E-posta: info@tamirtakip.com</p>
+                            </div>
+                            <div class="col-6 text-end">
+                                <h4 class="mb-0">FATURA</h4>
+                                <p class="mb-0"><strong>Fatura No:</strong> {{ isemri.id }}</p>
+                                <p class="mb-0"><strong>Tarih:</strong> {{ isemri.tamamlanma_tarihi|date:"d.m.Y" }}</p>
+                                <p class="mb-0"><strong>İş Emri No:</strong> {{ isemri.id }}</p>
+                            </div>
+                        </div>
+                        
+                        <hr>
+                        
+                    
+                        <div class="row mb-4">
+                            <div class="col-6">
+                                <h5>Müşteri Bilgileri</h5>
+                                <p class="mb-0"><strong>Ad Soyad:</strong> {{ isemri.arac.musteri.ad }}</p>
+                                <p class="mb-0"><strong>Telefon:</strong> {{ isemri.arac.musteri.telefon }}</p>
+                                <p class="mb-0"><strong>E-posta:</strong> {{ isemri.arac.musteri.email }}</p>
+                                <p class="mb-0"><strong>Adres:</strong> {{ isemri.arac.musteri.adres|default:"" }}</p>
+                            </div>
+                            <div class="col-6">
+                                <h5>Araç Bilgileri</h5>
+                                <p class="mb-0"><strong>Plaka:</strong> {{ isemri.arac.plaka }}</p>
+                                <p class="mb-0"><strong>Marka/Model:</strong> {{ isemri.arac.marka }} {{ isemri.arac.model }}</p>
+                                <p class="mb-0"><strong>Yıl:</strong> {{ isemri.arac.yil }}</p>
+                                <p class="mb-0"><strong>Şasi No:</strong> {{ isemri.arac.sasi_no }}</p>
+                            </div>
+                        </div>
+                        
+                    
+                        <div class="table-responsive mb-4">
+                            <table class="table table-bordered">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Hizmet/Parça</th>
+                                        <th>Açıklama</th>
+                                        <th class="text-center">Miktar</th>
+                                        <th class="text-end">Birim Fiyat</th>
+                                        <th class="text-end">Tutar</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for kalem in isemri.kalemler.all %}
+                                    <tr>
+                                        <td>{{ forloop.counter }}</td>
+                                        <td>{{ kalem.get_kalem_tipi_display }}</td>
+                                        <td>{{ kalem.aciklama }}</td>
+                                        <td class="text-center">{{ kalem.miktar }}</td>
+                                        <td class="text-end">{{ kalem.birim_fiyat }} ₺</td>
+                                        <td class="text-end">{{ kalem.toplam_fiyat }} ₺</td>
+                                    </tr>
+                                    {% empty %}
+                                    <tr>
+                                        <td colspan="6" class="text-center">Fatura kalemi bulunamadı</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <td colspan="4"></td>
+                                        <td class="text-end"><strong>Ara Toplam:</strong></td>
+                                        <td class="text-end">{{ isemri.ara_toplam }} ₺</td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="4"></td>
+                                        <td class="text-end"><strong>KDV (%18):</strong></td>
+                                        <td class="text-end">{{ isemri.kdv_tutari }} ₺</td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="4"></td>
+                                        <td class="text-end"><strong>Genel Toplam:</strong></td>
+                                        <td class="text-end"><strong>{{ isemri.toplam_tutar }} ₺</strong></td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                        
+                        
+                        <div class="row">
+                            <div class="col-7">
+                                <h6>Notlar</h6>
+                                <p class="small">
+                                    1. Tüm tamir işlemleri 3 ay garantilidir.<br>
+                                    2. Yedek parçalar üretici garantisi kapsamındadır.<br>
+                                    3. Ödeme fatura tarihinden itibaren 7 gün içinde yapılmalıdır.<br>
+                                    4. Fatura ile ilgili sorularınız için lütfen iletişime geçin.
+                                </p>
+                            </div>
+                            <div class="col-5">
+                                <h6>Ödeme Bilgileri</h6>
+                                <p class="small mb-1"><strong>Banka:</strong> Örnek Bank</p>
+                                <p class="small mb-1"><strong>IBAN:</strong> TR12 3456 7890 1234 5678 9012 34</p>
+                                <p class="small mb-1"><strong>Hesap Sahibi:</strong> Tamir Takip Sistemi A.Ş.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="text-center mt-4 pt-4 border-top">
+                            <p class="small text-muted mb-0">Bu fatura elektronik olarak oluşturulmuştur ve imza gerektirmez.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .invoice-container {
+        background-color: #fff;
+    }
+    
+    @media print {
+        body * {
+            visibility: hidden;
+        }
+        
+        .invoice-container, .invoice-container * {
+            visibility: visible;
+        }
+        
+        .invoice-container {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+        }
+        
+        .no-print {
+            display: none;
+        }
+    }
+</style>
+{% endblock %} 

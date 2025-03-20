@@ -1,218 +1,225 @@
 {% extends 'core/base.html' %}
 {% load static %}
 
-{% block title %}İş Emri #{{ isemri.id }}{% endblock %}
+{% block title %}İş Emri Detayı - Tamir Takip Sistemi{% endblock %}
 
 {% block content %}
 <div class="container py-4">
     <div class="row mb-4">
         <div class="col-12">
-            <nav aria-label="breadcrumb">
-                <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="{% url 'musteri_portal' %}">Kontrol Paneli</a></li>
-                    <li class="breadcrumb-item"><a href="{% url 'musteri_isemri_list' %}">İş Emirlerim</a></li>
-                    <li class="breadcrumb-item active" aria-current="page">İş Emri #{{ isemri.id }}</li>
-                </ol>
-            </nav>
-        </div>
-    </div>
-
-    <div class="row">
-        <div class="col-md-8">
-            <div class="card shadow-sm mb-4">
+            <div class="card shadow-sm">
                 <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0">
-                        <i class="fas fa-clipboard-list me-2"></i>İş Emri Detayları
-                    </h5>
-                    <span class="badge bg-light text-dark">#{{ isemri.id }}</span>
+                    <h5 class="mb-0"><i class="fas fa-clipboard me-2"></i> İş Emri #{{ isemri.id }} Detayları</h5>
+                    <a href="{% url 'musteri_portal' %}" class="btn btn-light btn-sm">
+                        <i class="fas fa-arrow-left me-1"></i> Geri Dön
+                    </a>
                 </div>
                 <div class="card-body">
                     <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <h6 class="text-muted">Araç Bilgileri</h6>
-                            <p class="mb-1"><strong>Marka/Model:</strong> {{ isemri.arac.marka }} {{ isemri.arac.model }}</p>
-                            <p class="mb-1"><strong>Plaka:</strong> {{ isemri.arac.plaka }}</p>
-                            <p class="mb-1"><strong>Üretim Yılı:</strong> {{ isemri.arac.uretim_yili }}</p>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <h6 class="text-muted">İş Emri Bilgileri</h6>
-                            <p class="mb-1"><strong>Durum:</strong> 
-                                {% if isemri.durum == 'beklemede' %}
-                                <span class="badge bg-warning">Beklemede</span>
-                                {% elif isemri.durum == 'devam_ediyor' %}
-                                <span class="badge bg-info">Devam Ediyor</span>
-                                {% elif isemri.durum == 'tamamlandi' %}
-                                <span class="badge bg-success">Tamamlandı</span>
-                                {% elif isemri.durum == 'iptal' %}
-                                <span class="badge bg-danger">İptal Edildi</span>
-                                {% endif %}
-                            </p>
-                            <p class="mb-1"><strong>Öncelik:</strong> 
-                                {% if isemri.oncelik == 'normal' %}
-                                <span class="badge bg-secondary">Normal</span>
-                                {% elif isemri.oncelik == 'yuksek' %}
-                                <span class="badge bg-warning">Yüksek</span>
-                                {% elif isemri.oncelik == 'acil' %}
-                                <span class="badge bg-danger">Acil</span>
-                                {% endif %}
-                            </p>
-                            <p class="mb-1"><strong>Oluşturma Tarihi:</strong> {{ isemri.olusturma_tarihi|date:"d.m.Y H:i" }}</p>
-                            <p class="mb-1"><strong>Tahmini Bitiş:</strong> {{ isemri.tahmini_bitis_tarihi|date:"d.m.Y"|default:"Henüz belirlenmedi" }}</p>
-                        </div>
-                    </div>
-                    
-                    <div class="mb-4">
-                        <h6 class="text-muted">Sorun Açıklaması</h6>
-                        <div class="p-3 bg-light rounded">
-                            {{ isemri.aciklama|linebreaks }}
-                        </div>
-                    </div>
-                    
-                    {% if isemri.tamirci_notu %}
-                    <div class="mb-4">
-                        <h6 class="text-muted">Tamirci Notu</h6>
-                        <div class="p-3 bg-light rounded">
-                            {{ isemri.tamirci_notu|linebreaks }}
-                        </div>
-                    </div>
-                    {% endif %}
-                    
-                    {% if isemri.durum == 'tamamlandi' %}
-                    <div class="alert alert-success">
-                        <i class="fas fa-check-circle me-2"></i> Bu iş emri tamamlanmıştır.
-                        {% if isemri.tamamlanma_tarihi %}
-                        <p class="mb-0 mt-2"><strong>Tamamlanma Tarihi:</strong> {{ isemri.tamamlanma_tarihi|date:"d.m.Y H:i" }}</p>
-                        {% endif %}
-                    </div>
-                    {% endif %}
-                </div>
-            </div>
-            
-            {% if islemler %}
-            <div class="card shadow-sm mb-4">
-                <div class="card-header bg-info text-white">
-                    <h5 class="mb-0">
-                        <i class="fas fa-tools me-2"></i>Yapılan İşlemler
-                    </h5>
-                </div>
-                <div class="card-body">
-                    <div class="table-responsive">
-                        <table class="table">
-                            <thead>
+                        <div class="col-lg-6">
+                            <h6 class="fw-bold">Araç Bilgileri</h6>
+                            <table class="table table-sm">
                                 <tr>
-                                    <th>İşlem</th>
-                                    <th>Açıklama</th>
-                                    <th>Tarih</th>
+                                    <th>Plaka</th>
+                                    <td>{{ isemri.arac.plaka }}</td>
                                 </tr>
-                            </thead>
-                            <tbody>
-                                {% for islem in islemler %}
                                 <tr>
-                                    <td>{{ islem.islem_adi }}</td>
-                                    <td>{{ islem.aciklama }}</td>
-                                    <td>{{ islem.tarih|date:"d.m.Y" }}</td>
+                                    <th>Marka / Model</th>
+                                    <td>{{ isemri.arac.marka }} {{ isemri.arac.model }}</td>
                                 </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-            {% endif %}
-        </div>
-        
-        <div class="col-md-4">
-            <div class="card shadow-sm mb-4">
-                <div class="card-header bg-secondary text-white">
-                    <h5 class="mb-0">
-                        <i class="fas fa-history me-2"></i>İş Emri Durumu
-                    </h5>
-                </div>
-                <div class="card-body p-0">
-                    <div class="list-group list-group-flush">
-                        <div class="list-group-item d-flex justify-content-between align-items-center">
-                            <div>
-                                <i class="fas fa-clipboard-check me-2 text-success"></i>
-                                <span>İş Emri Oluşturuldu</span>
-                            </div>
-                            <small class="text-muted">{{ isemri.olusturma_tarihi|date:"d.m.Y" }}</small>
+                                <tr>
+                                    <th>Yıl</th>
+                                    <td>{{ isemri.arac.yil }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Motor No</th>
+                                    <td>{{ isemri.arac.motor_no }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Şasi No</th>
+                                    <td>{{ isemri.arac.sasi_no }}</td>
+                                </tr>
+                            </table>
                         </div>
-                        
-                        <div class="list-group-item d-flex justify-content-between align-items-center">
-                            <div>
-                                <i class="fas fa-search me-2 {% if isemri.durum == 'beklemede' or isemri.durum == 'devam_ediyor' or isemri.durum == 'tamamlandi' %}text-success{% else %}text-muted{% endif %}"></i>
-                                <span>İnceleme</span>
-                            </div>
-                            <small class="text-muted">{% if isemri.inceleme_tarihi %}{{ isemri.inceleme_tarihi|date:"d.m.Y" }}{% else %}-{% endif %}</small>
-                        </div>
-                        
-                        <div class="list-group-item d-flex justify-content-between align-items-center">
-                            <div>
-                                <i class="fas fa-wrench me-2 {% if isemri.durum == 'devam_ediyor' or isemri.durum == 'tamamlandi' %}text-success{% else %}text-muted{% endif %}"></i>
-                                <span>Tamir Aşaması</span>
-                            </div>
-                            <small class="text-muted">{% if isemri.baslama_tarihi %}{{ isemri.baslama_tarihi|date:"d.m.Y" }}{% else %}-{% endif %}</small>
-                        </div>
-                        
-                        <div class="list-group-item d-flex justify-content-between align-items-center">
-                            <div>
-                                <i class="fas fa-check-circle me-2 {% if isemri.durum == 'tamamlandi' %}text-success{% else %}text-muted{% endif %}"></i>
-                                <span>Tamamlandı</span>
-                            </div>
-                            <small class="text-muted">{% if isemri.tamamlanma_tarihi %}{{ isemri.tamamlanma_tarihi|date:"d.m.Y" }}{% else %}-{% endif %}</small>
+                        <div class="col-lg-6">
+                            <h6 class="fw-bold">İş Emri Bilgileri</h6>
+                            <table class="table table-sm">
+                                <tr>
+                                    <th>İş Emri No</th>
+                                    <td>{{ isemri.id }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Oluşturulma Tarihi</th>
+                                    <td>{{ isemri.olusturma_tarihi }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Durum</th>
+                                    <td><span class="badge bg-{{ isemri.durum_renk }}">{{ isemri.get_durum_display }}</span></td>
+                                </tr>
+                                <tr>
+                                    <th>Tahmini Tamamlanma</th>
+                                    <td>{{ isemri.tahmini_tamamlanma_tarihi|default:"Belirtilmemiş" }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Tamamlanma Tarihi</th>
+                                    <td>{{ isemri.tamamlanma_tarihi|default:"Henüz tamamlanmadı" }}</td>
+                                </tr>
+                            </table>
                         </div>
                     </div>
-                </div>
-            </div>
+                    
+                    <div class="mt-4">
+                        <h6 class="fw-bold">Arıza ve Yapılacak İşlemler</h6>
+                        <div class="card">
+                            <div class="card-body bg-light">
+                                {{ isemri.aciklama|linebreaks }}
+                            </div>
+                        </div>
+                    </div>
+                    
             
-            {% if isemri.durum == 'beklemede' %}
-            <div class="card shadow-sm mb-4">
-                <div class="card-header bg-warning text-dark">
-                    <h5 class="mb-0">
-                        <i class="fas fa-exclamation-triangle me-2"></i>Bilgilendirme
-                    </h5>
-                </div>
-                <div class="card-body">
-                    <p>İş emriniz henüz inceleme aşamasındadır. Tamirci tarafından incelendikten sonra size bilgi verilecektir.</p>
-                </div>
-            </div>
-            {% endif %}
-            
-            <div class="d-grid gap-2">
-                <a href="{% url 'musteri_isemri_list' %}" class="btn btn-secondary">
-                    <i class="fas fa-arrow-left me-2"></i>İş Emirlerine Dön
-                </a>
+                    <div class="mt-4">
+                        <h6 class="fw-bold">Tamir İlerleme Durumu</h6>
+                        <div class="progress" style="height: 25px;">
+                            {% if isemri.durum == 'beklemede' %}
+                            <div class="progress-bar bg-warning" role="progressbar" style="width: 10%;" aria-valuenow="10" aria-valuemin="0" aria-valuemax="100">Beklemede (10%)</div>
+                            {% elif isemri.durum == 'incelemede' %}
+                            <div class="progress-bar bg-info" role="progressbar" style="width: 30%;" aria-valuenow="30" aria-valuemin="0" aria-valuemax="100">İncelemede (30%)</div>
+                            {% elif isemri.durum == 'onarim_sureci' %}
+                            <div class="progress-bar bg-primary" role="progressbar" style="width: 60%;" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100">Onarım Sürecinde (60%)</div>
+                            {% elif isemri.durum == 'test_asamasi' %}
+                            <div class="progress-bar bg-primary" role="progressbar" style="width: 80%;" aria-valuenow="80" aria-valuemin="0" aria-valuemax="100">Test Aşamasında (80%)</div>
+                            {% elif isemri.durum == 'tamamlandi' %}
+                            <div class="progress-bar bg-success" role="progressbar" style="width: 100%;" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100">Tamamlandı (100%)</div>
+                            {% elif isemri.durum == 'iptal_edildi' %}
+                            <div class="progress-bar bg-danger" role="progressbar" style="width: 100%;" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100">İptal Edildi</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
                 
-                {% if isemri.durum == 'beklemede' %}
-                <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#iptalModal">
-                    <i class="fas fa-times me-2"></i>İş Emrini İptal Et
-                </button>
-                {% endif %}
+                    <div class="mt-4">
+                        <h6 class="fw-bold">İşlem Geçmişi</h6>
+                        <div class="timeline">
+                            {% for islem in isemri.islemler.all %}
+                            <div class="timeline-item">
+                                <div class="timeline-point"></div>
+                                <div class="timeline-content">
+                                    <h6>{{ islem.get_islem_tipi_display }}</h6>
+                                    <p class="text-muted small">{{ islem.tarih }}</p>
+                                    <p>{{ islem.aciklama }}</p>
+                                </div>
+                            </div>
+                            {% empty %}
+                            <div class="alert alert-info">
+                                <i class="fas fa-info-circle me-2"></i> İşlem geçmişi henüz oluşturulmamış.
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    
+                    <!-- Tamir Fotoğrafları -->
+                    <div class="mt-4">
+                        <h6 class="fw-bold">Tamir Fotoğrafları</h6>
+                        <div class="row">
+                            {% for foto in isemri.fotograflar.all %}
+                            <div class="col-md-4 col-lg-3 mb-3">
+                                <div class="card">
+                                    <img src="{{ foto.fotograf.url }}" class="card-img-top" alt="Tamir fotoğrafı">
+                                    <div class="card-body p-2">
+                                        <p class="card-text small">{{ foto.aciklama|default:"" }}</p>
+                                        <small class="text-muted">{{ foto.yukleme_tarihi|date:"d.m.Y H:i" }}</small>
+                                    </div>
+                                </div>
+                            </div>
+                            {% empty %}
+                            <div class="col-12">
+                                <div class="alert alert-info">
+                                    <i class="fas fa-info-circle me-2"></i> Henüz fotoğraf yüklenmemiş.
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    
+                
+                    {% if isemri.durum == 'tamamlandi' %}
+                    <div class="mt-4">
+                        <h6 class="fw-bold">Fatura Bilgileri</h6>
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h5 class="mb-1">Toplam Tutar: {{ isemri.toplam_tutar }} ₺</h5>
+                                        <p class="mb-0 text-muted small">Fatura Tarihi: {{ isemri.tamamlanma_tarihi }}</p>
+                                    </div>
+                                    <div>
+                                        <a href="{% url 'musteri_fatura_goruntule' isemri.id %}" class="btn btn-primary">
+                                            <i class="fas fa-file-invoice me-2"></i> Faturayı Görüntüle
+                                        </a>
+                                        <a href="{% url 'musteri_fatura_indir' isemri.id %}" class="btn btn-outline-secondary ms-2">
+                                            <i class="fas fa-download me-2"></i> İndir
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
             </div>
         </div>
     </div>
 </div>
 
-<!-- İptal Modal -->
-<div class="modal fade" id="iptalModal" tabindex="-1" aria-labelledby="iptalModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header bg-danger text-white">
-                <h5 class="modal-title" id="iptalModalLabel">İş Emri İptal Onayı</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <p>Bu iş emrini iptal etmek istediğinizden emin misiniz?</p>
-                <p class="text-danger"><strong>Dikkat:</strong> Bu işlem geri alınamaz.</p>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Vazgeç</button>
-                <form method="post" action="{% url 'musteri_isemri_iptal' isemri.id %}">
-                    {% csrf_token %}
-                    <button type="submit" class="btn btn-danger">İptal Et</button>
-                </form>
-            </div>
-        </div>
-    </div>
+
+<style>
+    .timeline {
+        position: relative;
+        padding-left: 30px;
+        margin-left: 10px;
+    }
+    
+    .timeline:before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        height: 100%;
+        width: 3px;
+        background-color: #e3e3e3;
+    }
+    
+    .timeline-item {
+        position: relative;
+        margin-bottom: 20px;
+    }
+    
+    .timeline-point {
+        position: absolute;
+        left: -40px;
+        width: 15px;
+        height: 15px;
+        border-radius: 50%;
+        background-color: #3f51b5;
+        top: 5px;
+    }
+    
+    .timeline-content {
+        padding-bottom: 10px;
+        border-bottom: 1px solid #eee;
+    }
+</style>
+
+
+<div id="lightbox" class="lightbox">
+    <span class="lightbox-close">&times;</span>
+    <img class="lightbox-content" id="lightbox-img">
+    <div id="lightbox-caption" class="lightbox-caption"></div>
 </div>
+
+
+{% block extra_js %}
+<script src="{% static 'core/js/musteri_portal.js' %}"></script>
+{% endblock %}
 {% endblock %} 
